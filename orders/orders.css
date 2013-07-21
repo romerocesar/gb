@@ -1,0 +1,5 @@
+body {
+    min-height: 1040px;
+}
+body[orient="portrait"] {min-height: 1024px;}
+body[orient="landscape"] {min-height: 1000px;}
