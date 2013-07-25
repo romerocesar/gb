@@ -1,13 +1,14 @@
 from django.http import HttpResponse
 from django.shortcuts import render
 from django.template import RequestContext, loader
-import pymongo
 
-TEST_MENU = {'Food':['Appetizers', 'Main Dishes', 'Desserts'], 'Drinks':['Sodas','Juices', 'Wines', 'Beers', 'Cocktails']} 
+from settings import dao
 
-mongodb_client = pymongo.MongoClient()
-
-def menu(request):
-    menu = mongodb_client.test.menus.find_one()
-    menu.pop('_id',0) # remove the document id added by mongo
+def menu(request, client_id):
+    try:
+        client_id = int(client_id)
+        menu = dao.get_menu(client_id)
+    except ValueError:
+        print('invalid client id '+client_id)
+        menu = dao.get_menu()
     return render(request, 'menu.html', {'menu':menu})
