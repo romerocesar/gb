@@ -1,8 +1,13 @@
-<ul data-role="listview" data-divider-theme="d">
-  {% for division, sections in menu.items %}
-  <li data-role="list-divider">{{division}}</li>
-  {% for section in sections %}
-  <li><a href="#">{{section}}</a></li>
-  {% endfor %}
-  {% endfor %}
-</ul>
+<div data-role="page">
+  <div data-role="header">Menu</div>
+    <div data-role="content">
+      <ul data-role="listview" data-divider-theme="d">
+	{% for division, sections in menu.items %}
+	<li data-role="list-divider">{{division}}</li>
+	{% for section in sections %}
+	<li><a href="#">{{section}}</a></li>
+	{% endfor %}
+	{% endfor %}
+      </ul>
+  </div>
+</div>
