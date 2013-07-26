@@ -13,3 +13,8 @@ class OrdersDAO:
         menu = self.client.orders.menus.find_one()
         menu.pop('_id', None) # remove mongo id
         return menu
+
+    def get_dish(self,dish_id=1):
+        '''get the specified dish from the DB'''
+        dish = self.client.orders.dishes.find_one()
+        return dish

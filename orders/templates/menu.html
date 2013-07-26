@@ -1,23 +1,8 @@
-<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
-<html> 
-  <head>
-    <title>Menu</title>
-    {% load staticfiles %}
-    <link rel="stylesheet" href="http://code.jquery.com/mobile/1.3.1/jquery.mobile-1.3.1.min.css" />
-    <link rel="stylesheet" href="{% static 'styles/orders.css' %}" />
-    <meta name="viewport" content="width=device-width, target-densitydpi=high-dpi" />
-  </head>
-  <body>
-    <ul data-role="listview" data-divider-theme="d">
-      {% for division, sections in menu.items %}
-        <li data-role="list-divider">{{division}}</li>
-        {% for section in sections %}
-        <li><a href="#">{{section}}</a></li>
-        {% endfor %}
-      {% endfor %}
-    </ul>
-    <script src="http://code.jquery.com/jquery-1.9.1.min.js"></script>
-    <script src="http://code.jquery.com/mobile/1.3.1/jquery.mobile-1.3.1.min.js"></script>
-    <script src="{% static 'js/orders.js' %}"></script>
-  </body>
-</html>
+<ul data-role="listview" data-divider-theme="d">
+  {% for division, sections in menu.items %}
+  <li data-role="list-divider">{{division}}</li>
+  {% for section in sections %}
+  <li><a href="#">{{section}}</a></li>
+  {% endfor %}
+  {% endfor %}
+</ul>
