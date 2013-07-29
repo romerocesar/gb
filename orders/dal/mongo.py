@@ -10,11 +10,11 @@ class OrdersDAO:
         self.client = pymongo.MongoClient()
         if bootstrap:
             # load bootstrap data
-            db = self.client.orders
-            db.menus.remove()
-            db.menus.insert(menus)
-            db.items.remove()
-            db.items.insert(items)
+            self.db = self.client.orders
+            self.db.menus.remove()
+            self.db.menus.insert(menus)
+            self.db.items.remove()
+            self.db.items.insert(items)
 
     def get_menu(self,client_id=1):
         '''for now just get the first menu in the collection and
@@ -35,7 +35,7 @@ class OrdersDAO:
         other valid items can still be retrieved'''
         # TODO: change this to actually use the input list of ids
         print('get_items',ids)
-        items  = self.client.orders.items.find()
+        items  = self.db.items.find({'_id':{'$in':ids}})
         res = []
         for item in items:
             item['id'] = str(item['_id'])
