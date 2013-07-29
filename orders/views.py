@@ -19,10 +19,10 @@ def dish(request, dish_id):
     return render(request, 'index.html',
                  {'template':'dish.html', 'title':dish['name'], 'dish':dish})
 
-def section(request, menu_id, section):
+def section(request, menu_id, division, section):
     print('section',menu_id,section)
     menu = dao.get_menu(menu_id)
-    ids = menu['sections'][int(section)]['items']
+    ids = menu['structure'][division][section]
     items = dao.get_items(ids)
     print('items ', items)
     return render(request, 'index.html',

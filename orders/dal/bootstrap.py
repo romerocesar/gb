@@ -1,16 +1,19 @@
 menus = [
-    {'structure':{'Food':[0,1,2],
-                  'Drinks':[3,4,5,6,7]},
-     'sections': [
-         {'name':'Appetizers','items':['0','1','2','3']},
-         {'name': 'Main Dishes','items':['4','5','6','7','8','9']},
-         {'name': 'Desserts', 'items':['10','11']},
-         {'name':'Sodas','items':[]},
-         {'name':'Juices','items':[]},
-         {'name': 'Wines','items':[]},
-         {'name': 'Beers','items':[]},
-         {'name': 'Cocktails','items':[]}
-     ]
+    {
+	'structure': {
+	    'Food':{
+		'Appetizers':['0','1','2','3'],
+		'Main Dishes':['4','5','6','7','8','9'],
+		'Desserts':['10','11'],
+	    },
+	    'Drinks': {
+		'Sodas':[],
+		'Juices':[],
+		'Wines':[],
+		'Beers':[],
+		'Cocktails':[]
+	    }
+	}
     }
 ]
 

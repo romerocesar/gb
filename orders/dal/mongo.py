@@ -19,13 +19,13 @@ class OrdersDAO:
     def get_menu(self,client_id=1):
         '''for now just get the first menu in the collection and
         ignore the specified client id'''
-        menu = self.client.orders.menus.find_one()
+        menu = self.db.menus.find_one()
         return menu
 
     def get_dish(self,item_id=1):
         '''get the specified dish from the DB'''
         print('get_dish',item_id)
-        item = self.client.orders.items.find_one({'_id':item_id})
+        item = self.db.items.find_one({'_id':item_id})
         print('item',item)
         return item
 
