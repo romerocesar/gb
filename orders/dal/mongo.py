@@ -70,10 +70,22 @@ class ManagerDAO:
             else:
                 self.db.menu.update({'_id': 'menu'}, {'$set': { str(name) : [] }})
 
+    def del_section(self, name, inside):
+        if inside:
+            self.db.menu.update({'_id': 'menu'}, {'$unset': {str(inside) + "." + str(name): [] }})
+        else:
+            self.db.menu.update({'_id': 'menu'}, {'$unset': {str(name): [] }})
+
     def add_item(self, name, price):
         self.db.items.insert({'name': name, 'price': price})
 
+    def del_item(self, name):
+        self.db.items.remove({'name': name})
+
     def insert_item(self, insert, inside):
-        self.db.menu.update({'_id': 'menu'}, {'$push': { str(inside) : str(insert)}})
+        self.db.menu.update({'_id': 'menu'}, {'$addToSet': { str(inside) : str(insert)}})
+
+    def remove_item_from(self, item, inside):
+        self.db.menu.update({'_id': 'menu'}, {'$pull': {str(inside): str(item)}})
 
     

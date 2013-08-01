@@ -8,7 +8,7 @@ class SectionForm(forms.Form):
 
 class ItemForm(forms.Form):
     name = forms.CharField(max_length=50)
-    price = forms.FloatField(min_value=0)
+    price = forms.FloatField(min_value=0, initial=0)
 
 def get_my_choices(items):
     it = [(i['_id'], i['name']) for i in items]
@@ -23,14 +23,6 @@ class ItemInsert(forms.Form):
         choice = kwargs.pop('choices', [])
         super(ItemInsert, self).__init__(*args, **kwargs)
         self.fields['insert'] = forms.ChoiceField(
-            choices=get_my_choices(choice) )
+            choices=get_my_choices(choice), label='Item' )
         self.fields['inside'] = forms.CharField(max_length=50)
-    """
-    items = []
-    it = [(i['_id'], i['name']) for i in items]
-    choice = []
-    for i in xrange(len(it)):
-        choice.append((it[i][0], it[i][1]))
-    insert = forms.ChoiceField(choices=choice)
-    """
-    #inside = forms.CharField(max_length=50)
+   

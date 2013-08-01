@@ -36,7 +36,7 @@ def managerview(request, client_name):
     menu = manager.get_menu()
     items = manager.get_items()
     if request.method == 'POST':
-        if 'submitsection' in request.POST:
+        if 'add_section' in request.POST:
             section_form = SectionForm(request.POST)
             item_form = ItemForm()
             iteminsert_form = ItemInsert(choices=items)
@@ -46,7 +46,16 @@ def managerview(request, client_name):
                 has_subsections = cd['has_subsections']
                 inside = cd['inside']
                 manager.add_section(name, has_subsections, inside)
-        elif 'submititem' in request.POST:
+        elif 'delete_section' in request.POST:
+            section_form = SectionForm(request.POST)
+            item_form = ItemForm()
+            iteminsert_form = ItemInsert(choices=items)
+            if section_form.is_valid():
+                cd = section_form.cleaned_data
+                name = cd['name']
+                inside = cd['inside']
+                manager.del_section(name, inside)
+        elif 'add_item' in request.POST:
             section_form = SectionForm()
             item_form = ItemForm(request.POST)
             iteminsert_form = ItemInsert(choices=items)
@@ -55,6 +64,15 @@ def managerview(request, client_name):
                 name = cd['name']
                 price = cd['price']
                 manager.add_item(name, price)
+        elif 'delete_item' in request.POST:
+            section_form = SectionForm()
+            item_form = ItemForm(request.POST)
+            iteminsert_form = ItemInsert(choices=items)
+            if item_form.is_valid():
+                cd = item_form.cleaned_data
+                name = cd['name']
+                price = cd['price']
+                manager.del_item(name)
         elif 'insertitem' in request.POST:
             section_form = SectionForm()
             item_form = ItemForm()
@@ -64,6 +82,15 @@ def managerview(request, client_name):
                 insert = cd['insert']
                 inside = cd['inside']
                 manager.insert_item(insert, inside)
+        elif 'remove_from' in request.POST:
+            section_form = SectionForm()
+            item_form = ItemForm()
+            iteminsert_form = ItemInsert(request.POST, choices=items)
+            if iteminsert_form.is_valid():
+                cd = iteminsert_form.cleaned_data
+                insert = cd['insert']
+                inside = cd['inside']
+                manager.remove_item_from(insert, inside)
     else:
         section_form = SectionForm()
         item_form = ItemForm()
