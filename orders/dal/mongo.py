@@ -42,3 +42,38 @@ class OrdersDAO:
             res.append(item)
         print('res',res)
         return res
+
+
+class ManagerDAO:
+
+    def __init__(self):
+        self.client = pymongo.MongoClient()
+        self.db = self.client.client_name
+        if list(self.db.menu.find()) == []:
+            self.db.menu.insert({'_id': 'menu'})
+
+    def get_menu(self):
+        return self.db.menu.find()
+
+    def get_items(self):
+        return self.db.items.find()
+
+    def add_section(self, name, has_subsections, inside):
+        if has_subsections:
+            if inside:
+                self.db.menu.update({'_id': 'menu'}, {'$set': { str(inside) + "." + str(name) : {} }})
+            else:
+                self.db.menu.update({'_id': 'menu'}, {'$set': { str(name) : {} }})
+        else:
+            if inside:
+                self.db.menu.update({'_id': 'menu'}, {'$set': { str(inside) + "." + str(name) : [] }})
+            else:
+                self.db.menu.update({'_id': 'menu'}, {'$set': { str(name) : [] }})
+
+    def add_item(self, name, price):
+        self.db.items.insert({'name': name, 'price': price})
+
+    def insert_item(self, insert, inside):
+        self.db.menu.update({'_id': 'menu'}, {'$push': { str(inside) : str(insert)}})
+
+    

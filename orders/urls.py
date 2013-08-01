@@ -5,4 +5,5 @@ urlpatterns = patterns('',
     url(r'^client/(\d+)/menu$', views.menu, name='menu'),
     url(r'^menu/(\w+)/(.+)/(.+)$', views.section, name='section'),
     url(r'^item/(\w+)$', views.dish, name='item'),
+    url(r'^manager/$', views.managerview),
 )
