@@ -1,7 +1,8 @@
 from django.http import HttpResponse
 from django.shortcuts import render
 
-from settings import dao, manager
+from settings import dao
+from dal.mongo import ManagerDAO
 
 from orders.forms import SectionForm, ItemForm, ItemInsert
 
@@ -30,14 +31,15 @@ def section(request, menu_id, division, section):
     return render(request, 'index.html',
                 {'template':'section.html', 'name':section, 'items':items})
 
-def managerview(request):
+def managerview(request, client_name):
+    manager = ManagerDAO(client_name)
     menu = manager.get_menu()
     items = manager.get_items()
     if request.method == 'POST':
         if 'submitsection' in request.POST:
             section_form = SectionForm(request.POST)
             item_form = ItemForm()
-            iteminsert_form = ItemInsert()
+            iteminsert_form = ItemInsert(choices=items)
             if section_form.is_valid():
                 cd = section_form.cleaned_data
                 name = cd['name']
@@ -47,7 +49,7 @@ def managerview(request):
         elif 'submititem' in request.POST:
             section_form = SectionForm()
             item_form = ItemForm(request.POST)
-            iteminsert_form = ItemInsert()
+            iteminsert_form = ItemInsert(choices=items)
             if item_form.is_valid():
                 cd = item_form.cleaned_data
                 name = cd['name']
@@ -56,7 +58,7 @@ def managerview(request):
         elif 'insertitem' in request.POST:
             section_form = SectionForm()
             item_form = ItemForm()
-            iteminsert_form = ItemInsert(request.POST)
+            iteminsert_form = ItemInsert(request.POST, choices=items)
             if iteminsert_form.is_valid():
                 cd = iteminsert_form.cleaned_data
                 insert = cd['insert']
@@ -65,7 +67,7 @@ def managerview(request):
     else:
         section_form = SectionForm()
         item_form = ItemForm()
-        iteminsert_form = ItemInsert()
+        iteminsert_form = ItemInsert(choices=items)
     return render(request, 'manager.html',
                   {'menu': menu, 'items': items,
                    'section_form': section_form,

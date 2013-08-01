@@ -46,17 +46,17 @@ class OrdersDAO:
 
 class ManagerDAO:
 
-    def __init__(self):
+    def __init__(self, client_name):
         self.client = pymongo.MongoClient()
-        self.db = self.client.client_name
+        self.db = eval('self.client.' + str(client_name))
         if list(self.db.menu.find()) == []:
             self.db.menu.insert({'_id': 'menu'})
 
     def get_menu(self):
-        return self.db.menu.find()
+        return list(self.db.menu.find())
 
     def get_items(self):
-        return self.db.items.find()
+        return list(self.db.items.find())
 
     def add_section(self, name, has_subsections, inside):
         if has_subsections:
