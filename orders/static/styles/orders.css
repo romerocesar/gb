@@ -3,3 +3,11 @@ body {
 }
 body[orient="portrait"] {min-height: 1024px;}
 body[orient="landscape"] {min-height: 1000px;}
+
+div[data-role="footer"] p {
+    width: 200px;
+    margin: auto;
+}
+div[data-role="footer"] a {
+    display: inline-block;
+}

@@ -16,6 +16,7 @@ def menu(request, client_id):
 
 def dish(request, dish_id):
     dish = dao.get_dish(dish_id)
+    dish['id'] = dish['_id']
     return render(request, 'index.html',
                  {'template':'dish.html', 'title':dish['name'], 'dish':dish})
 
@@ -27,3 +28,6 @@ def section(request, menu_id, division, section):
     print('items ', items)
     return render(request, 'index.html',
                 {'template':'section.html', 'name':section, 'items':items})
+
+def place_order(request, client_id, item_id):
+    pass

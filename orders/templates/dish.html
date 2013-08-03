@@ -6,6 +6,12 @@
     <p>{{dish.description}}</p>
   </div><!-- /content -->
   <div data-role="footer">
-    <h4>{{dish.price}}</h4>
+<p>
+{{dish.price}}
+    <a href="{% url 'order' dish.id dish.id %}" data-role="button"
+  data-theme="b">
+    Order
+    </a>
+</p>
   </div><!-- /footer -->
 </div><!-- /page -->
