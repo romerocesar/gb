@@ -14,11 +14,11 @@ def menu(request, client_id):
     return render(request, 'index.html',
                   {'menu':menu, 'template':'menu.html', 'title':'Menu'})
 
-def dish(request, dish_id):
+def item(request, dish_id):
     dish = dao.get_dish(dish_id)
     dish['id'] = dish['_id']
     return render(request, 'index.html',
-                 {'template':'dish.html', 'title':dish['name'], 'dish':dish})
+                 {'template':'item.html', 'title':dish['name'], 'dish':dish})
 
 def section(request, menu_id, division, section):
     print('section',menu_id,section)
