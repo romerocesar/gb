@@ -28,16 +28,19 @@ def section(request, menu_id, division, section):
     return render(request, 'index.html',
                 {'template':'section.html', 'name':section, 'items':items})
 
-def place_order(request, qty, item_id, client_id):
+def place_order(request, item_id, client_id):
     '''Places an order for qty units of item_id from client_id. This
     should add the order to the DB, show the user a confirmation
     message and redirect them to the previous section they were
     browsing'''
-    # TODO: orders should have a seat_id and an array of events
-    dao.add_order(client_id, item_id, qty)
+    # TODO: orders should have a seat_id and an array of
+    # events. quantity should come via a POST request
+    quantity = request.GET['quantity']
+    print('place_orders', request, item_id, client_id, quantity)
+    dao.add_order(client_id, item_id, quantity)
     item_name = dao.get_item(item_id)['name']
     return render(request, 'index.html',
-                  {'template':'confirmation.html', 'client':client_id, 'qty':qty, 
+                  {'template':'confirmation.html', 'client':client_id, 'qty':quantity, 
                    'item_name':item_name})
 
 def list_orders(request, client_id, query={}):

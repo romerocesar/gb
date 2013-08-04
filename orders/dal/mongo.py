@@ -61,6 +61,7 @@ class OrdersDAO:
         # events. Each event will have a server_id, a timestamp and an
         # action so the order history can be traced and troubleshooted
         # easily.
+        print('add_order',client_id, item_id, quantity)
         order = {'client_id':client_id, 'item_id':item_id, 'quantity':quantity,
                  'status':self.ORDER_PLACED}
         return self.db.orders.insert(order)
