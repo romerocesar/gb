@@ -1,6 +1,6 @@
 import os
 import pymongo
-from bootstrap import menus, items
+from bootstrap import menus, items, clients
 
 class OrdersDAO:
     '''This class defines the data access object to be used for data
@@ -22,13 +22,19 @@ class OrdersDAO:
             self.db.menus.insert(menus)
             self.db.items.remove()
             self.db.items.insert(items)
+            self.db.clients.remove()
+            self.db.clients.insert(clients)
 
-    def get_menu(self,client_id=1):
-        '''for now just get the first menu in the collection and
-        ignore the specified client id'''
-        menu = self.db.menus.find_one()
+    def get_client_menu(self, client_id='c0'):
+        '''Gets the active menu for the specified client ID.'''
+        mid = self.db.clients.find_one(client_id)['menu']
+        menu = self.db.menus.find_one(mid)
         return menu
 
+    def get_menu(self, menu_id='m0'):
+        '''Gets the menu that matches the specified menu ID'''
+        return self.db.menus.find_one(menu_id)
+    
     def get_item(self,item_id=1):
         '''get the specified item from the DB'''
         print('get_item',item_id)
@@ -59,4 +65,32 @@ class OrdersDAO:
                  'status':self.ORDER_PLACED}
         return self.db.orders.insert(order)
 
-    
+    def list_orders(self, client_id, query={}): 
+        '''Lists orders for the specified client matched by the given
+        query. If query is not given, all pending orders for the given
+        client will be returned'''
+        # TODO: actually use the given filter for the query.
+        print('list_orders',client_id, query)
+        orders = self.db.orders.find({'client_id':client_id})
+        res = []
+        names = {}
+        for order in orders:
+            order['id'] = order['_id']
+            iid = order['item_id']
+            if iid in names:
+                order['item_name'] = names[iid]
+            else:
+                order['item_name'] = names[iid] = self.get_item_name(iid)
+            res.append(order)
+        print('orders',res)
+        return res
+
+    def get_item_name(self, item_id):
+        'Simply get the item name for the given item ID'
+        ans = self.db.items.find_one(item_id)['name']
+        print('get_item_name',ans)
+        return ans
+
+    def get_client(self, client_id):
+        '''Simply return the client that matches the specified id'''
+        return self.db.clients.find_one(client_id)

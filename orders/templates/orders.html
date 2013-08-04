@@ -1,0 +1,11 @@
+<div data-role="page">
+  <div data-role="header">Pending orders for {{client_name}}</div>
+  <div data-role="content">
+    <ul data-role="listview" data-divider-theme="d">
+      {% for order in orders %}
+      <li><a href="#">{{order.quantity}} {{order.item_name}}</a></li>
+      {% endfor %}
+    </ul>
+  </div>
+  <div data-role="footer"/>
+</div>

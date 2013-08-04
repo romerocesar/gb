@@ -1,24 +1,25 @@
 clients = [
     {'_id':'c0',
-     'menu':'m0'
+     'menu':'m0',
+     'name':'Foo'
     }
 ]
 
 menus = [
     {'_id':'m0',
      'structure': {
-	 'Food':{
-	     'Appetizers':['0','1','2','3'],
-	     'Main Dishes':['4','5','6','7','8','9'],
-	     'Desserts':['10','11'],
-	 },
-	 'Drinks': {
-	     'Sodas':[],
-	     'Juices':[],
-	     'Wines':[],
-	     'Beers':[],
-	     'Cocktails':[]
-	 }
+         'Food':{
+             'Appetizers':['0','1','2','3'],
+             'Main Dishes':['4','5','6','7','8','9'],
+             'Desserts':['10','11'],
+         },
+         'Drinks': {
+             'Sodas':[],
+             'Juices':[],
+             'Wines':[],
+             'Beers':[],
+             'Cocktails':[]
+         }
      }
     }
 ]

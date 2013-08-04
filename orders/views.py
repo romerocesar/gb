@@ -5,11 +5,10 @@ from settings import dao
 
 def menu(request, client_id):
     try:
-        client_id = int(client_id)
-        menu = dao.get_menu(client_id)
+        menu = dao.get_client_menu(client_id)
     except ValueError:
         print('invalid client id '+client_id)
-        menu = dao.get_menu()
+        menu = dao.get_client_menu()
     menu['id'] = str(menu['_id'])
     return render(request, 'index.html',
                   {'menu':menu, 'template':'menu.html', 'title':'Menu'})
@@ -40,3 +39,18 @@ def place_order(request, qty, item_id, client_id):
     return render(request, 'index.html',
                   {'template':'confirmation.html', 'client':client_id, 'qty':qty, 
                    'item_name':item_name})
+
+def list_orders(request, client_id, query={}):
+    '''Lists orders in the specified client's queue. It defaults to
+    the pending orders, but the view should provide a way for the
+    server or manager to filter by any combination of date, status and
+    seat'''
+    # TODO: implement the filters mentioned above
+    orders = dao.list_orders(client_id, query)
+    client_name = dao.get_client(client_id)['name']
+    for order in orders:
+        order['id'] = order['_id']
+    return render(request, 'index.html',
+                  {'template':'orders.html', 'client_name':client_name,
+                   'orders':orders})
+
