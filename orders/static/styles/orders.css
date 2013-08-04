@@ -16,7 +16,6 @@ div[data-role="footer"] a {
 
 div[data-role="content"] {
     margin: auto;
-    width: 60%;
 }
 div[data-role="content"] p {
     text-align: center;
