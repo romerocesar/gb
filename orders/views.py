@@ -36,7 +36,7 @@ def place_order(request, item_id, client_id):
     # TODO: orders should have a seat_id and an array of
     # events. quantity should come via a POST request
     quantity = request.GET['quantity']
-    print('place_orders', request, item_id, client_id, quantity)
+    print('place_orders', item_id, client_id, quantity)
     dao.add_order(client_id, item_id, quantity)
     item_name = dao.get_item(item_id)['name']
     return render(request, 'index.html',
@@ -51,9 +51,6 @@ def list_orders(request, client_id, query={}):
     # TODO: implement the filters mentioned above
     orders = dao.list_orders(client_id, query)
     client_name = dao.get_client(client_id)['name']
-    for order in orders:
-        order['id'] = order['_id']
     return render(request, 'index.html',
                   {'template':'orders.html', 'client_name':client_name,
                    'orders':orders})
-

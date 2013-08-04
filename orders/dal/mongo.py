@@ -1,5 +1,7 @@
 import os
 import pymongo
+import datetime
+
 from bootstrap import menus, items, clients
 
 class OrdersDAO:
@@ -82,6 +84,7 @@ class OrdersDAO:
                 order['item_name'] = names[iid]
             else:
                 order['item_name'] = names[iid] = self.get_item_name(iid)
+            order['delay'] = compute_delay(order)
             res.append(order)
         print('orders',res)
         return res
@@ -95,3 +98,28 @@ class OrdersDAO:
     def get_client(self, client_id):
         '''Simply return the client that matches the specified id'''
         return self.db.clients.find_one(client_id)
+
+# Helper methods. The functions below are not part of the
+# 'interface' and need not be implemented by other OrdersDAO
+# implementations. These are what would be 'private' methods in
+# other OO languages
+def compute_delay(mongo_obj):
+    '''Computes how long ago the given mongo document was stored
+    in the DB. It extracts the timestamp from the object ID and
+    compares with the current time to determine how many seconds
+    ago the object was created. Returns a simple human readable
+    string that shows how long ago in seconds, minutes, hours or
+    days ago the object was created'''
+    timestamp = int(str(mongo_obj['_id'])[:8],16)
+    now = datetime.datetime.utcnow()
+    delta = now - datetime.datetime.utcfromtimestamp(timestamp)
+    secs = delta.seconds
+    units = ((24*60*60,' day'),(60*60,' hr'),(60,' min'),(1,' sec'))
+    idx = 0
+    while secs < units[idx][0]:
+        idx += 1
+    qty = secs // units[idx][0]
+    ans = str(qty) + units[idx][1]
+    if qty > 1: 
+        ans += 's'
+    return ans + ' ago'
