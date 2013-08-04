@@ -11,3 +11,9 @@ div[data-role="footer"] p {
 div[data-role="footer"] a {
     display: inline-block;
 }
+
+div[data-role="content"] p {
+    margin: auto;
+    width: 50%;
+    text-align: center;
+}

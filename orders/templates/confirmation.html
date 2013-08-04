@@ -1,16 +1,11 @@
 <div data-role="page">
   <div data-role="header">
-    <h1>{{item.name}}</h1>
+    <h1>Order Placed!</h1>
   </div><!-- /header -->
   <div data-role="content">	
-    <p>{{item.description}}</p>
+    <p>{{qty}} {{item_name}} coming!. <br/>
+    Seat back and relax</p>
   </div><!-- /content -->
   <div data-role="footer">
-<p>
-{{item.price}}
-    <a href="{% url 'order' 1 item.id item.client_id %}" data-role="button" data-theme="b">
-    Order
-    </a>
-</p>
   </div><!-- /footer -->
 </div><!-- /page -->

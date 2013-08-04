@@ -5,7 +5,14 @@ from bootstrap import menus, items
 class OrdersDAO:
     '''This class defines the data access object to be used for data
     stored in MongoDB'''
-    
+
+    # order statii
+    ORDER_PLACED = '_placed_'
+    ORDER_PREPARED = '_prepared_'
+    ORDER_SERVED = '_served_'
+    ORDER_PAID = '_paid_'
+    ORDER_RETURNED = '_returned_'
+
     def __init__(self, bootstrap=False):
         self.client = pymongo.MongoClient()
         if bootstrap:
@@ -22,9 +29,9 @@ class OrdersDAO:
         menu = self.db.menus.find_one()
         return menu
 
-    def get_dish(self,item_id=1):
-        '''get the specified dish from the DB'''
-        print('get_dish',item_id)
+    def get_item(self,item_id=1):
+        '''get the specified item from the DB'''
+        print('get_item',item_id)
         item = self.db.items.find_one({'_id':item_id})
         print('item',item)
         return item
@@ -42,3 +49,14 @@ class OrdersDAO:
             res.append(item)
         print('res',res)
         return res
+
+    def add_order(self, client_id, item_id, quantity):
+        # TODO: orders will need to have a seat_id and an array of
+        # events. Each event will have a server_id, a timestamp and an
+        # action so the order history can be traced and troubleshooted
+        # easily.
+        order = {'client_id':client_id, 'item_id':item_id, 'quantity':quantity,
+                 'status':self.ORDER_PLACED}
+        return self.db.orders.insert(order)
+
+    
