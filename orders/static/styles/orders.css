@@ -4,20 +4,13 @@ body {
 body[orient="portrait"] {min-height: 1024px;}
 body[orient="landscape"] {min-height: 1000px;}
 
-div[data-role="footer"] p {
-    width: 60%;
-    margin: auto;
-}
-div[data-role="footer"] a {
-    display: inline-block;
-    margin: auto;
-    width: 200px;
-}
-
 div[data-role="content"] {
     margin: auto;
-    width: 60%;
 }
 div[data-role="content"] p {
     text-align: center;
+}
+
+.delay {
+    float: right;
 }

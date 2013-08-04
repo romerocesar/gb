@@ -7,7 +7,7 @@
     <label for="quantity">Order Quantity:</label>
 <!-- TODO: this should be POST, but I'm probably doing something stupid and it doesn't work -->
 <form action="{% url 'order' item.id item.client_id %}" method="get">
-    <input type="range" name="quantity" id="quantity" value="1" min="1" max="10"/>
+    <input type="range" name="quantity" id="quantity" value="1" min="1" max="8"/>
     <input type="submit" value="Order" data-role="button" data-theme="b"/>
 </form>
   </div><!-- /content -->
