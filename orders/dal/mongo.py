@@ -1,6 +1,6 @@
 import os
 import pymongo
-from bootstrap import menus, items
+from bootstrap import menus, items, clients
 
 class OrdersDAO:
     '''This class defines the data access object to be used for data
@@ -8,9 +8,11 @@ class OrdersDAO:
     
     def __init__(self, bootstrap=False):
         self.client = pymongo.MongoClient()
+        self.db = self.client.orders
         if bootstrap:
             # load bootstrap data
-            self.db = self.client.orders
+            self.db.clients.remove()
+            self.db.clients.insert(clients)
             self.db.menus.remove()
             self.db.menus.insert(menus)
             self.db.items.remove()
@@ -43,49 +45,55 @@ class OrdersDAO:
         print('res',res)
         return res
 
+    def get_active_menu(self, client_id):
+        return self.db.clients.find_one({'_id': client_id})['menu']
 
-class ManagerDAO:
+    def m_get_menu(self, client_id):
+        menu_id = self.db.clients.find_one({'_id': client_id})['menu']
+        menu = self.db.menus.find_one({'_id': menu_id})
+        return menu
 
-    def __init__(self, client_name):
-        self.client = pymongo.MongoClient()
-        self.db = eval('self.client.' + str(client_name))
-        if list(self.db.menu.find()) == []:
-            self.db.menu.insert({'_id': 'menu'})
+    def m_get_items(self, client_id):
+        items = list(self.db.items.find({'client_id': client_id}))
+        return items
 
-    def get_menu(self):
-        return list(self.db.menu.find())
+    def add_item(self, client_id, name, price, description):
+        self.db.items.insert({'client_id': client_id,
+                              'name': name,
+                              'price': price,
+                              'description': description})
 
-    def get_items(self):
-        return list(self.db.items.find())
+    def del_item(self, client_id, name):
+        self.db.items.remove({'client_id': client_id,
+                              'name': name})
 
-    def add_section(self, name, has_subsections, inside):
+    def add_section(self, client_id, name, has_subsections, inside):
+        menu_id = self.get_active_menu(client_id)
         if has_subsections:
             if inside:
-                self.db.menu.update({'_id': 'menu'}, {'$set': { str(inside) + "." + str(name) : {} }})
+                self.db.menus.update({'_id': menu_id}, {'$set': { "structure." + str(inside) + "." + str(name) : {} }})
             else:
-                self.db.menu.update({'_id': 'menu'}, {'$set': { str(name) : {} }})
+                self.db.menus.update({'_id': menu_id}, {'$set': { "structure." + str(name) : {} }})
         else:
             if inside:
-                self.db.menu.update({'_id': 'menu'}, {'$set': { str(inside) + "." + str(name) : [] }})
+                self.db.menus.update({'_id': menu_id}, {'$set': { "structure." + str(inside) + "." + str(name) : [] }})
             else:
-                self.db.menu.update({'_id': 'menu'}, {'$set': { str(name) : [] }})
+                self.db.menus.update({'_id': menu_id}, {'$set': { "structure." + str(name) : [] }})
 
-    def del_section(self, name, inside):
+    def del_section(self, client_id, name, inside):
+        menu_id = self.get_active_menu(client_id)
         if inside:
-            self.db.menu.update({'_id': 'menu'}, {'$unset': {str(inside) + "." + str(name): [] }})
+            self.db.menus.update({'_id': menu_id}, {'$unset': { "structure." + str(inside) + "." + str(name): [] }})
         else:
-            self.db.menu.update({'_id': 'menu'}, {'$unset': {str(name): [] }})
+            self.db.menus.update({'_id': menu_id}, {'$unset': { "structure." + str(name): [] }})
 
-    def add_item(self, name, price):
-        self.db.items.insert({'name': name, 'price': price})
+    def insert_item(self, client_id, insert, inside):
+        menu_id = self.get_active_menu(client_id)
+        self.db.menus.update({'_id': menu_id}, {'$addToSet': { "structure." + str(inside) : str(insert)}})
 
-    def del_item(self, name):
-        self.db.items.remove({'name': name})
+    def remove_item_from(self, client_id, item, inside):
+        menu_id = self.get_active_menu(client_id)
+        self.db.menus.update({'_id': menu_id}, {'$pull': { "structure." + str(inside): str(item)}})
 
-    def insert_item(self, insert, inside):
-        self.db.menu.update({'_id': 'menu'}, {'$addToSet': { str(inside) : str(insert)}})
-
-    def remove_item_from(self, item, inside):
-        self.db.menu.update({'_id': 'menu'}, {'$pull': {str(inside): str(item)}})
 
     
