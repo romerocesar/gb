@@ -93,9 +93,11 @@ def managerview(request, client_id):
         section_form = SectionForm()
         item_form = ItemForm()
         iteminsert_form = ItemInsert(choices=items)
-    return render(request, 'manager.html',
+    return render(request, 'index_ui.html',
                   {'menu': menu, 'items': items,
                    'section_form': section_form,
                    'item_form': item_form,
-                   'iteminsert': iteminsert_form})
+                   'iteminsert': iteminsert_form,
+                   'template': 'manager.html',
+                   'title': 'Manager'})
 

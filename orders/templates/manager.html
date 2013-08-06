@@ -1,52 +1,66 @@
-<html>
-	<head>
-		<title>Manager</title>
-	</head>
-	<body>
-		<h3> Menu:</h3>
-		{{ menu }}
-		{% for item in menu %}	
-			<!--{{item}} <br> -->
-			{% for it1, it2 in item.items %}
-				{% ifnotequal it2  "menu" %}
-					{{ it1 }} - {{ it2 }}<br>
-				{% endifnotequal %}
+
+<h3> Menu:</h3>
+<ul>
+	{% for division, sections in menu.structure.items %}
+		<li>{{division}}</li>
+		<ul>
+			{% for section, item in sections.items %}
+				<li>{{ section}}</li>
+				<ul>
+					{% for it in item %}
+						<li>{{ it }}</li>
+					{% endfor %}
+				</ul>
 			{% endfor %}
-		{% endfor %}
-		<br>
-		<form action="" method="post">
-			Add/Delete section:
-			<table>
-            {{ section_form.as_table }}
-			</table>
-			{% csrf_token %}
-			<input type="submit" value="Add" name="add_section">
-			<input type="submit" value="Delete" name="delete_section">
-		</form>
-		
-		<form action="" method="post">
-			Add/Delete Item:
-			<table>
-			{{ item_form.as_table }}
-			</table>
-			{% csrf_token %}
-			<input type="submit" value="Add" name="add_item">
-			<input type="submit" value="Delete" name="delete_item">
-		</form>
-		Items:<br>
-		{% for item in items %}
-			{{ item }}
-			<br>
-		{% endfor %}
-		
-		<form action="" method="post">
-			<table>
-			{{ iteminsert.as_table }}
-			</table>
-			{% csrf_token %}
-			<input type="submit" value="Insert" name="insertitem">
-			<input type="submit" value="Remove" name="remove_from">
-		</form>
-		
-	</body>
-</html>
+		</ul>
+	{% endfor %}
+</ul>
+
+
+<br>
+<form action="" method="post">
+	Add/Delete section:
+	<table>
+	{{ section_form.as_table }}
+	</table>
+	{% csrf_token %}
+	<input type="submit" value="Add" name="add_section">
+	<input type="submit" value="Delete" name="delete_section">
+</form>
+
+<form action="" method="post">
+	Add/Delete Item:
+	<table>
+	{{ item_form.as_table }}
+	</table>
+	{% csrf_token %}
+	<input type="submit" value="Add" name="add_item">
+	<input type="submit" value="Delete" name="delete_item">
+</form>
+Items:<br>
+<table id="myTable" class="tablesorter">
+<thead>
+	<tr>
+		<th>Name</th>
+		<th>Price</th>
+		<th>Description</th>
+	</tr>
+</thead>
+<tbody>
+{% for item in items %}
+	<tr>
+		<td>{{ item.name }}</td>
+		<td>{{ item.price }}</td>
+		<td>{{ item.description}}</td>
+	</tr>
+{% endfor %}
+</tbody>
+</table>
+<form action="" method="post">
+	<table>
+	{{ iteminsert.as_table }}
+	</table>
+	{% csrf_token %}
+	<input type="submit" value="Insert" name="insertitem">
+	<input type="submit" value="Remove" name="remove_from">
+</form>
