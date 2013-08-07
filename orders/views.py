@@ -62,7 +62,8 @@ def managerview(request, client_id):
                 name = cd['name']
                 price = cd['price']
                 description = cd['description']
-                dao.add_item(client_id, name, price, description)
+                if request.is_ajax():
+                    dao.add_item(client_id, name, price, description)
         elif 'delete_item_id' in request.POST:
             section_form = SectionForm()
             item_form = ItemForm()

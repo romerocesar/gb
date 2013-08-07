@@ -1,5 +1,6 @@
 import os
 import pymongo
+from bson.objectid import ObjectId
 from bootstrap import menus, items, clients
 
 class OrdersDAO:
@@ -64,8 +65,13 @@ class OrdersDAO:
                               'description': description})
 
     def del_item(self, client_id, item_id):
-        self.db.items.remove({'client_id': client_id,
+        if len(item_id) < 10:
+            #this are bootstraped items
+            self.db.items.remove({'client_id': client_id,
                               '_id': item_id})
+        else:
+            self.db.items.remove({'client_id': client_id,
+                              '_id': ObjectId(item_id)})
 
     def add_section(self, client_id, name, has_subsections, inside):
         menu_id = self.get_active_menu(client_id)
