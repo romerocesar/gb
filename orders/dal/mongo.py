@@ -63,9 +63,9 @@ class OrdersDAO:
                               'price': price,
                               'description': description})
 
-    def del_item(self, client_id, name):
+    def del_item(self, client_id, item_id):
         self.db.items.remove({'client_id': client_id,
-                              'name': name})
+                              '_id': item_id})
 
     def add_section(self, client_id, name, has_subsections, inside):
         menu_id = self.get_active_menu(client_id)

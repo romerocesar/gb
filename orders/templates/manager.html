@@ -35,7 +35,6 @@
 	</table>
 	{% csrf_token %}
 	<input type="submit" value="Add" name="add_item">
-	<input type="submit" value="Delete" name="delete_item">
 </form>
 Items:<br>
 <table id="myTable" class="tablesorter">
@@ -44,14 +43,25 @@ Items:<br>
 		<th>Name</th>
 		<th>Price</th>
 		<th>Description</th>
+		<th filter='false'>Options</th>
 	</tr>
 </thead>
 <tbody>
+{% load mongo_id %}
 {% for item in items %}
-	<tr>
+	<tr class="menu_items">
 		<td>{{ item.name }}</td>
 		<td>{{ item.price }}</td>
 		<td>{{ item.description}}</td>
+		<td>
+		<form action="" method="post" class="delete_button">
+		<div class="ajaxwrapper">
+			{% csrf_token %}
+			<input type="hidden" name="delete_item_id" value={{ item|id }}>
+			<input type="submit" value="delete" name="delete_item" class="sendbutton">
+		</div>
+		</form>
+		</td>
 	</tr>
 {% endfor %}
 </tbody>

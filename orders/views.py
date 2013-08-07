@@ -63,14 +63,13 @@ def managerview(request, client_id):
                 price = cd['price']
                 description = cd['description']
                 dao.add_item(client_id, name, price, description)
-        elif 'delete_item' in request.POST:
+        elif 'delete_item_id' in request.POST:
             section_form = SectionForm()
-            item_form = ItemForm(request.POST)
+            item_form = ItemForm()
             iteminsert_form = ItemInsert(choices=items)
-            if item_form.is_valid():
-                cd = item_form.cleaned_data
-                name = cd['name']
-                dao.del_item(client_id, name)
+            item_id = request.POST['delete_item_id']
+            if request.is_ajax():
+                dao.del_item(client_id, item_id)
         elif 'insertitem' in request.POST:
             section_form = SectionForm()
             item_form = ItemForm()
