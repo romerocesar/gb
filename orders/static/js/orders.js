@@ -18,16 +18,18 @@ $(document).ready(function() {
 		return false;	
 	});
 	$('#add_item_form').submit(function() {
-		var serial = $(this).serialize()
+		var name = $(this).find('#id_name').val()
+		var price = $(this).find('#id_price').val()
+		var description = $(this).find('#id_description').val()
 		$.ajax({
-			data: serial + "&add_item",
+			data: $(this).serialize() + "&add_item",
 			type: $(this).attr('method'),
 			url: $(this).attr('action'),
 			success: function(response) {
 				$(this).find('.ajaxwrapper').html(response);
 			}
 		});
-		$('#myTable').append('<tr> <td>temp name</td> <td>temp price</td> <td>temp description</td> <td>temp button</td> </tr>');
+		$('#myTable').append('<tr> <td>'+name+'</td> <td>'+price+'</td> <td>'+description+'</td> <td><button>delete</button></td> </tr>');
 		return false;
 	});
 });
