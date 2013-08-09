@@ -12,10 +12,7 @@ class ItemForm(forms.Form):
     description = forms.CharField(max_length=200, widget=forms.Textarea)
 
 def get_my_choices(items):
-    it = [(i['_id'], i['name']) for i in items]
-    choice = []
-    for i in xrange(len(it)):
-        choice.append((it[i][0], it[i][1]))
+    choice = [(i['_id'], i['name']) for i in items]
     return choice
 
 class ItemInsert(forms.Form):

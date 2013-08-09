@@ -4,11 +4,11 @@
 	{% for division, sections in menu.structure.items %}
 		<li>{{division}}</li>
 		<ul>
-			{% for section, item in sections.items %}
+			{% for section, items in sections.items %}
 				<li>{{ section}}</li>
 				<ul>
-					{% for it in item %}
-						<li>{{ it }}</li>
+					{% for item in items %}
+						<li>{{ item }}</li>
 					{% endfor %}
 				</ul>
 			{% endfor %}
@@ -17,7 +17,6 @@
 </ul>
 
 
-<br>
 <form action="" method="post">
 	Add/Delete section:
 	<table>
