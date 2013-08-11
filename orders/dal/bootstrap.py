@@ -1,6 +1,7 @@
 clients = [
     {'_id':'c0',
      'menu':'m0',
+     'menus': ['m0', 'm1'], 
      'name':'Foo'
     }
 ]
@@ -21,7 +22,17 @@ menus = [
              'Cocktails':[]
          }
      }
-    }
+    },
+    {'_id': 'm1',
+     'structure': {
+         'Drinks': []
+         }
+     },
+    {'_id': 'm2',
+     'structure': {
+         'Food': []
+         }
+     }
 ]
 
 items = [
