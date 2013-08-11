@@ -194,7 +194,7 @@ def compute_delay(mongo_obj):
     timestamp = int(str(mongo_obj['_id'])[:8],16)
     now = datetime.datetime.utcnow()
     delta = now - datetime.datetime.utcfromtimestamp(timestamp)
-    secs = delta.seconds
+    secs = int(delta.total_seconds())
     units = ((24*60*60,' day'),(60*60,' hr'),(60,' min'),(1,' sec'))
     idx = 0
     while secs < units[idx][0]:
@@ -204,4 +204,3 @@ def compute_delay(mongo_obj):
     if qty > 1: 
         ans += 's'
     return ans + ' ago'
->>>>>>> master
