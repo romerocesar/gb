@@ -4,7 +4,20 @@ body {
 body[orient="portrait"] {min-height: 1024px;}
 body[orient="landscape"] {min-height: 1000px;}
 
-/* tables */
+div[data-role="content"] {
+    margin: auto;
+}
+div[data-role="content"] p {
+    text-align: center;
+}
+
+.delay {
+    float: right;
+}
+
+/* Tables 
+   TODO: move this into a separate css file as this doesn't apply to touch devices
+*/
 table.tablesorter {
 	font-family:arial;
 	background-color: #CDCDCD;

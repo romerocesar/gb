@@ -47,5 +47,5 @@ items = [
     {'_id':'8','client_id':'c0', 'name':'Tuscan chicken pasta', 'description':'grilled chicken tossed with tomatoes and fresh basil over linguine.', 'price':15.99},
     {'_id':'9','client_id':'c0', 'name':'lobster and jumbo lump crab cake', 'description':'blended jumbo lump crab and maine lobster with apple cider coleslaw, garlic fries and our signature tartar sauce', 'price':17.99},
     {'_id':'10','client_id':'c0', 'name':'warm apple bread pudding', 'description':"with pecans, vanilla ice cream and whiskey sauce", 'price':6.99},
-    {'_id':'11','client_id':'c0', 'name':'Ultimate double chocolate cake', 'description':"chocolate cake layered with chocolate mousse and housemade fudge", 'price':6.99},  
+    {'_id':'11','client_id':'c0', 'name':'Ultimate double chocolate cake', 'description':"chocolate cake layered with chocolate mousse and housemade fudge", 'price':6.99}
 ]
