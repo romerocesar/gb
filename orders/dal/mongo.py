@@ -16,13 +16,13 @@ class OrdersDAO:
     ORDER_PAID = '_paid_'
     ORDER_RETURNED = '_returned_'
 
+    ORDER_STATII = (ORDER_PLACED, ORDER_RETURNED, ORDER_PAID, ORDER_SERVED, ORDER_PREPARED)
+
     def __init__(self, bootstrap=False):
         self.client = pymongo.MongoClient()
         self.db = self.client.orders
         if bootstrap:
             # load bootstrap data
-            self.db.clients.remove()
-            self.db.clients.insert(clients)
             self.db.menus.remove()
             self.db.menus.insert(menus)
             self.db.items.remove()
@@ -149,17 +149,19 @@ class OrdersDAO:
                  'status':self.ORDER_PLACED}
         return self.db.orders.insert(order)
 
-    def list_orders(self, client_id, query={}): 
+    def list_orders(self, client_id, query={}):
         '''Lists orders for the specified client matched by the given
-        query. If query is not given, all pending orders for the given
-        client will be returned'''
-        # TODO: actually use the given filter for the query.
-        print('list_orders',client_id, query)
-        orders = self.db.orders.find({'client_id':client_id})
+        query. If query is not given, all orders in _placed_ status
+        for the given client will be returned'''
+        print('list_orders', client_id, query)
+        if not query:
+            query['status'] = self.ORDER_PLACED
+            query['client_id'] = client_id
+        orders = self.db.orders.find(query)
         res = []
         names = {}
         for order in orders:
-            order['id'] = order['_id']
+            order['id'] = str(order['_id'])
             iid = order['item_id']
             if iid in names:
                 order['item_name'] = names[iid]
@@ -180,10 +182,32 @@ class OrdersDAO:
         '''Simply return the client that matches the specified id'''
         return self.db.clients.find_one(client_id)
 
-# Helper methods. The functions below are not part of the
-# 'interface' and need not be implemented by other OrdersDAO
-# implementations. These are what would be 'private' methods in
-# other OO languages
+    def get_client_id(self, order_id):
+        'Return the client id the specified order belongs to'
+        # TODO: what if order_id does not exist or it doesn't contain a client id?
+        cid = self.db.orders.find_one(ObjectId(order_id))['client_id']
+        return cid
+
+    def get_order(self, order_id): 
+        '''Returns the order object that matches the given id. Adds
+        the name of the item in the order as well as its delay as
+        these two are almost always needed'''
+        oid = ObjectId(order_id) 
+        order = self.db.orders.find_one(oid)
+        order['item_name'] = self.get_item_name(order['item_id'])
+        order['delay'] = compute_delay(order)
+        order['id'] = str(order['_id'])
+        return order
+
+    def update_order(self, order_id, status):
+        'Updates the status of the specified order. Returns the new status of the order.'
+        res = self.db.orders.find_and_modify({'_id':ObjectId(order_id)},{'$set':{'status':status}}, new=True)
+        return res['status']
+
+# Helper methods. The functions below are not part of the 'interface'
+# and need not be implemented by other OrdersDAO
+# implementations. These are what would be 'private' and perhaps
+# 'static' methods in other OO languages
 def compute_delay(mongo_obj):
     '''Computes how long ago the given mongo document was stored
     in the DB. It extracts the timestamp from the object ID and

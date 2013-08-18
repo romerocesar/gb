@@ -7,5 +7,7 @@ urlpatterns = patterns('',
     url(r'^manager/(\w+)$', views.managerview),
     url(r'^item/(\w+)$', views.item, name='item'),
     url(r'^order/item/(\w+)/client/(\w+)$', views.place_order, name='order'),
+    url(r'^order/(\w+)$', views.order, name='order_details'),
+    url(r'^order/(\w+)/update$', views.update_order, name='update_order'),
     url(r'^orders/(\w+)$', views.list_orders, name='orders'),
 )

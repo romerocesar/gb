@@ -3,7 +3,7 @@
   <div data-role="content">
     <ul data-role="listview" data-divider-theme="d">
       {% for order in orders %}
-       <li><a href="#">{{order.quantity}} {{order.item_name}} 
+       <li><a href="{% url 'order_details' order.id %}">{{order.quantity}} {{order.item_name}} 
              <span class="delay">{{order.delay}}</span>
            </a>
        </li>

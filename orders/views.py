@@ -1,5 +1,5 @@
 from django.http import HttpResponse
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 
 from settings import dao
 
@@ -146,3 +146,25 @@ def list_orders(request, client_id, query={}):
     return render(request, 'index.html',
                   {'template':'orders.html', 'client_name':client_name,
                    'orders':orders})
+
+def order(request, order_id): 
+    '''Displays order details and allows a server to update the status
+    of the order. It extracts the definition of valid statii from the dao'''
+    order = dao.get_order(order_id)
+    statii = []
+    for status in dao.ORDER_STATII:
+        statii.append({'name':status.replace('_','').capitalize(), 'value':status})
+    return render(request, 'index.html', 
+                  {'template':'order.html', 'order':order, 'statii':statii})
+
+def update_order(request, order_id):
+    '''Updates the specified order with the params in the request'''
+    print('update_order',order_id)
+    status = request.POST['status']
+    res = dao.update_order(order_id, status)
+    if res != status:
+        # TODO: return a 503?
+        return
+    client_id = dao.get_client_id(order_id)
+    return render(request, 'index.html',
+                  {'template':'updated.html', 'client_id':client_id})

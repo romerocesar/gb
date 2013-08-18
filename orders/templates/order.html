@@ -1,0 +1,25 @@
+<div data-role="page">
+  <div data-role="header"><p>{{order.quantity}} orders of {{order.item_name}} 
+    <span class="delay">{{order.delay}}</span></p>
+  </div>
+  <div data-role="content">
+    <form action="{% url 'update_order' order.id %}" method="post">
+      {% csrf_token %}
+      <fieldset data-role="controlgroup">
+    	<legend>Update Order Status:</legend>
+	{% for status in statii %}
+	{% if status.value == order.status %}
+        <input type="radio" name="status" id="{{status.value}}"
+	value="{{status.value}}" checked="checked"/>
+	{% else %}
+        <input type="radio" name="status" id="{{status.value}}"
+	value="{{status.value}}"/>
+	{% endif %}
+        <label for="{{status.value}}">{{status.name}}</label>
+	{% endfor %}
+      </fieldset>
+      <input type="submit" value="Update" data-theme="e"/>
+    </form>
+  </div>
+  <div data-role="footer"/>
+</div>
