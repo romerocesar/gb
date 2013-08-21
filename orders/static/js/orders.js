@@ -27,9 +27,16 @@ $(document).ready(function() {
 			url: $(this).attr('action'),
 			success: function(response) {
 				$(this).find('.ajaxwrapper').html(response);
+				$('#myTable').append('<tr> <td>'+name+'</td> <td>'+price+'</td> <td>'+description+'</td> <td><button>delete</button></td> </tr>');
 			}
 		});
-		$('#myTable').append('<tr> <td>'+name+'</td> <td>'+price+'</td> <td>'+description+'</td> <td><button>delete</button></td> </tr>');
+		
 		return false;
 	});
+	
+	var pathname = location.pathname.substring(1);
+	var parts = pathname.split(/\//);
+	var url = parts[parts.length - 1];
+    // Will only work if string in href matches with location
+        $('ul.nav a[href="./' + url + '"]').parent().addClass('active');
 });

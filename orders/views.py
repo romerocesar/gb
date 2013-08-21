@@ -29,7 +29,7 @@ def section(request, menu_id, division, section):
     print('items ', items)
     return render(request, 'index.html',
                 {'template':'section.html', 'name':section, 'items':items})
-
+"""
 def managerview(request, client_id):
     #TODO: some refactoring,
     #      make the form validations work with the javascript part
@@ -118,6 +118,64 @@ def managerview(request, client_id):
                    'item_form': item_form,
                    'iteminsert': iteminsert_form,
                    'template': 'manager.html',
+                   'title': 'Manager'})
+"""
+def manager_items(request, client_id):
+    #TODO: some refactoring,
+    #      make the form validations work with the javascript part
+    menu = dao.get_client_menu(client_id)
+    items = dao.get_client_items(client_id)
+    if request.method == 'POST':
+        if 'add_item' in request.POST:
+            #This case handles de add items submit form
+            item_form = ItemForm(request.POST)
+            if item_form.is_valid():
+                #If the form is valid it enters here
+                cd = item_form.cleaned_data
+                name = cd['name']
+                price = cd['price']
+                description = cd['description']
+                if request.is_ajax():
+                    #Checks if the request is ajax after the validation of the form
+                    #Even though the javascript part is running without validation...
+                    dao.add_item(client_id, name, price, description)
+        elif 'delete_item_id' in request.POST:
+            #This case handles de delete item submit form
+            item_form = ItemForm()
+            item_id = request.POST['delete_item_id']
+            if request.is_ajax():
+                #Checks if the request is ajax
+                #IDK if this is necesary or even in the right order
+                dao.del_item(item_id)     
+    else:
+        #This case handles when request.method == GET
+        #When the page is loaded the first time
+        item_form = ItemForm()
+    return render(request, 'desktop_index.html',
+                  {'items': items,
+                   'item_form': item_form,
+                   'template': 'manager_items.html',
+                   'title': 'Manager'})
+
+def manager_menus(request, client_id):
+    #TODO: some refactoring,
+    #      make the form validations work with the javascript part
+    menu = dao.get_client_menu(client_id)
+    items = dao.get_client_items(client_id)
+    if request.method == 'POST':
+        pass
+    else:
+        #This case handles when request.method == GET
+        #When the page is loaded the first time
+        section_form = SectionForm()
+        item_form = ItemForm()
+        iteminsert_form = ItemInsert(choices=items)
+    return render(request, 'desktop_index.html',
+                  {'menu': menu, 'items': items,
+                   'section_form': section_form,
+                   'item_form': item_form,
+                   'iteminsert': iteminsert_form,
+                   'template': 'manager_menus.html',
                    'title': 'Manager'})
 
 def place_order(request, item_id, client_id):

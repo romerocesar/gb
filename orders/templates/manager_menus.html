@@ -1,0 +1,16 @@
+<h3> Menu:</h3>
+<ul>
+	{% for division, sections in menu.structure.items %}
+		<li>{{division}}</li>
+		<ul>
+			{% for section, items in sections.items %}
+				<li>{{ section}}</li>
+				<ul>
+					{% for item in items %}
+						<li>{{ item }}</li>
+					{% endfor %}
+				</ul>
+			{% endfor %}
+		</ul>
+	{% endfor %}
+</ul>
