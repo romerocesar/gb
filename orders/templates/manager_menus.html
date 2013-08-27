@@ -1,4 +1,5 @@
 <h3> Menu:</h3>
+<div id="demo3"></div>
 <ul>
 	{% for division, sections in menu.structure.items %}
 		<li>{{division}}</li>
@@ -16,9 +17,12 @@
 </ul>
 {{ json_menu|safe }}
 <div id="demo1"></div>
+<p>st2:</p>
+<div id="demo2"></div>
+
 <script type='text/javascript'>
 	var st = $.parseJSON('{{ json_menu|safe }}');
-
+	var st2 = $.parseJSON('{"data": [{"data":"A node", "children":["Child 1", "Child 2",{"data":"Child 3", "children":["grandchild"]}]},{"data":"Long format demo"}]}');
 	$("#demo1").jstree({ 
 		"json_data" : {
 			"data" : [
@@ -41,5 +45,43 @@
 			]
 		},
 		"plugins" : [ "themes", "json_data", "ui" ]
-	})
+	});
+	$('#demo2').jstree({
+		"json_data": st2,
+		"plugins" : [ "themes", "json_data", "ui" ]
+		});
+	$("#demo3").jstree({ 
+		"json_data" : {
+			"data" : [
+				{ 
+					"data" : "Food", 
+					"children" : [ 
+						{
+							"data": "Desserts",
+							"children": ["10","11"]
+						}, 
+						{
+							"data": "Main Dishes",
+							"children": ["4","5","6","7","8","9"]
+						}, 
+						{
+							"data": "Appetizers",
+							"children": ["0","1","2","3"]
+						},
+						]
+				},
+				{ 
+					"data" : "Drinks", 
+					"children" : [ 
+						"Cocktails", 
+						"Juices",
+						"Sodas",
+						"Beers",
+						"Wines"
+						]
+				}
+			]
+		},
+		"plugins" : [ "themes", "json_data", "ui" ]
+	});
 </script>
