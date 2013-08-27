@@ -1,9 +1,12 @@
 from django.http import HttpResponse
 from django.shortcuts import render, redirect
+from django.utils import simplejson
 
 from settings import dao
 
 from orders.forms import SectionForm, ItemForm, ItemInsert
+
+
 
 def menu(request, client_id):
     try:
@@ -172,6 +175,7 @@ def manager_menus(request, client_id):
         iteminsert_form = ItemInsert(choices=items)
     return render(request, 'desktop_index.html',
                   {'menu': menu, 'items': items,
+                   'json_menu': simplejson.dumps(menu),
                    'section_form': section_form,
                    'item_form': item_form,
                    'iteminsert': iteminsert_form,
