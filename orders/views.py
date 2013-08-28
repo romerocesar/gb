@@ -166,21 +166,41 @@ def manager_menus(request, client_id):
     menu = dao.get_client_menu(client_id)
     items = dao.get_client_items(client_id)
     if request.method == 'POST':
-        pass
+        jstree_menu = jstree(menu)
+        print "asd"
+        if request.is_ajax():
+            print "HELLO", request.POST
     else:
         #This case handles when request.method == GET
         #When the page is loaded the first time
-        section_form = SectionForm()
-        item_form = ItemForm()
-        iteminsert_form = ItemInsert(choices=items)
+        jstree_menu = jstree(menu)
+        if request.is_ajax():
+            print "HELLO GET"
+            jstree2normal(request.GET)
     return render(request, 'desktop_index.html',
                   {'menu': menu, 'items': items,
-                   'json_menu': simplejson.dumps(menu),
-                   'section_form': section_form,
-                   'item_form': item_form,
-                   'iteminsert': iteminsert_form,
+                   'json_menu': simplejson.dumps(jstree_menu),
                    'template': 'manager_menus.html',
                    'title': 'Manager'})
+
+def jstree(menu):
+    tree = {'data': []}
+    i = 0
+    for section in menu['structure']:
+        tree['data'].append({'data': section, 'children':[]})
+        j = 0
+        for subsection in menu['structure'][section]:
+            tree['data'][i]['children'].append({'data': subsection, 'children':[]})
+            for item in menu['structure'][section][subsection]:
+                tree['data'][i]['children'][j]['children'].append(item)
+            j += 1
+        i += 1
+    return tree
+
+def jstree2normal(tree):
+    print tree
+    return tree
+    
 
 def place_order(request, item_id, client_id):
     '''Places an order for qty units of item_id from client_id. This
