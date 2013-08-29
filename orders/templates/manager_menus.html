@@ -2,114 +2,33 @@
 <div id="demo2"></div>
 <input type="button" class="button" value="save" id="save" style="float:left;">
 
+</br>
+</br>
 
-<br>
-<ul>
-	{% for division, sections in menu.structure.items %}
-		<li>{{division}}</li>
-		<ul>
-			{% for section, items in sections.items %}
-				<li>{{ section}}</li>
-				<ul>
-					{% for item in items %}
-						<li>{{ item }}</li>
-					{% endfor %}
-				</ul>
-			{% endfor %}
-		</ul>
-	{% endfor %}
-</ul>
-{{ menu.structure }}
+{{ menu }}
+</br>
+</br>
 {{ json_menu|safe }}
-<div id="demo1"></div>
-<p>st2:</p>
-<div id="demo3"></div>
 
 <script type='text/javascript'>
 	var st = $.parseJSON('{{ json_menu|safe }}');
-	var st2 = $.parseJSON('{"data": [{"data":"A node", "children":["Child 1", "Child 2",{"data":"Child 3", "children":["grandchild"]}]},{"data":"Long format demo"}]}');
-	$("#demo1").jstree({ 
-		"json_data" : {
-		"data": [
-			{
-				"data": "A node",
-				"children": [
-					"Child 1",
-					"A Child 2",
-					{
-						"data": "Child 3",
-						"children": [
-							"grandchild"
-						]
-					}
-				]
-			},
-			{
-				"data": {
-					"title": "Long format demo"
-				}
-			}
-		]
-	},"plugins" : [ "themes", "json_data", "ui" ]
-	});
 	$('#demo2').jstree({
 		"json_data": st,
-		"plugins" : [ "themes", "json_data", "ui", "dnd", "crrm", "contextmenu", "hotkeys", "unique" ]
+		"types": {
+			"max_depth": 2
+		},
+		"themes": {
+			"theme": "apple"
+		},
+		"plugins" : [ "themes", "json_data", "ui", "dnd", "crrm", "contextmenu", "hotkeys", "unique", "types" ]
 		});
-	$("#demo3").jstree({ 
-		"json_data" : {
-		"data": [
-			{
-				"data": "Food",
-				"children": [
-					{
-						"data": "Desserts",
-						"children": [
-							"10",
-							"11"
-						]
-					},
-					{
-						"data": "Main Dishes",
-						"children": [
-							"4",
-							"5",
-							"6",
-							"7",
-							"8",
-							"9"
-						]
-					},
-					{
-						"data": "Appetizers",
-						"children": [
-							"0",
-							"1",
-							"2",
-							"3"
-						]
-					}
-				]
-			},
-			{
-				"data": "Drinks",
-				"children": [
-					"Cocktails",
-					"Juices",
-					"Sodas",
-					"Beers",
-					"Wines"
-				]
-			}
-		]
-	},"plugins" : [ "themes", "json_data", "ui", "dnd", "crrm", "contextmenu", "hotkeys", "unique" ]
-	});
 	$("#save").click(function () {
-        var j = $("#demo2").jstree("get_json");
-		var csrf = {csrfmiddlewaretoken: '{{ csrf_token }}' };
+        var tree = $("#demo2").jstree("get_json", -1);
 		$.ajax({
-			data: JSON.stringify(j),
-			type: "get",
+			data: {
+				'tree': JSON.stringify(tree),
+				'csrfmiddlewaretoken': '{{ csrf_token }}'},
+			type: "post",
 		});
     });
 </script>

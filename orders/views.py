@@ -166,20 +166,15 @@ def manager_menus(request, client_id):
     menu = dao.get_client_menu(client_id)
     items = dao.get_client_items(client_id)
     if request.method == 'POST':
-        jstree_menu = jstree(menu)
-        print "asd"
         if request.is_ajax():
-            print "HELLO", request.POST
+            print jstree2normal(request.POST)
     else:
         #This case handles when request.method == GET
         #When the page is loaded the first time
-        jstree_menu = jstree(menu)
-        if request.is_ajax():
-            print "HELLO GET"
-            jstree2normal(request.GET)
+        pass  
     return render(request, 'desktop_index.html',
                   {'menu': menu, 'items': items,
-                   'json_menu': simplejson.dumps(jstree_menu),
+                   'json_menu': jstree(menu),
                    'template': 'manager_menus.html',
                    'title': 'Manager'})
 
@@ -187,19 +182,28 @@ def jstree(menu):
     tree = {'data': []}
     i = 0
     for section in menu['structure']:
-        tree['data'].append({'data': section, 'children':[]})
+        tree['data'].append({'data': section, 'state': 'open','children':[]})
         j = 0
         for subsection in menu['structure'][section]:
-            tree['data'][i]['children'].append({'data': subsection, 'children':[]})
+            tree['data'][i]['children'].append({'data': subsection, 'state': 'open','children':[]})
             for item in menu['structure'][section][subsection]:
                 tree['data'][i]['children'][j]['children'].append(item)
             j += 1
         i += 1
-    return tree
+    return simplejson.dumps(tree)
 
 def jstree2normal(tree):
-    print tree
-    return tree
+    t = simplejson.loads(tree['tree'])
+    structure = {}
+    for i in t:
+        structure[i['data']] = {}
+        if 'children' in i:
+            for j in i['children']:
+                structure[i['data']][j['data']] = []
+                if 'children' in j:
+                    for k in j['children']:
+                        structure[i['data']][j['data']].append(k['data'])
+    return structure
     
 
 def place_order(request, item_id, client_id):
