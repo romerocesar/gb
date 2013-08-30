@@ -174,36 +174,37 @@ def manager_menus(request, client_id):
         pass  
     return render(request, 'desktop_index.html',
                   {'menu': menu, 'items': items,
-                   'json_menu': jstree(menu),
+                   'json_menu': normal2jstree(menu),
                    'template': 'manager_menus.html',
                    'title': 'Manager'})
 
-def jstree(menu):
+def normal2jstree(menu):
     tree = {'data': []}
     i = 0
+    tree['data'].append({'data': menu['title'], 'attr': {'id': menu['_id'], 'rel': 'root'}, 'state': 'open', 'children': []})
     for section in menu['structure']:
-        tree['data'].append({'data': section, 'state': 'open','children':[]})
+        tree['data'][0]['children'].append({'data': section, 'state': 'open','children':[]})
         j = 0
         for subsection in menu['structure'][section]:
-            tree['data'][i]['children'].append({'data': subsection, 'state': 'open','children':[]})
+            tree['data'][0]['children'][i]['children'].append({'data': subsection, 'state': 'open','children':[]})
             for item in menu['structure'][section][subsection]:
-                tree['data'][i]['children'][j]['children'].append(item)
+                tree['data'][0]['children'][i]['children'][j]['children'].append(item)
             j += 1
         i += 1
     return simplejson.dumps(tree)
 
 def jstree2normal(tree):
-    t = simplejson.loads(tree['tree'])
+    body = simplejson.loads(tree['tree'])
     structure = {}
-    for i in t:
-        structure[i['data']] = {}
-        if 'children' in i:
-            for j in i['children']:
-                structure[i['data']][j['data']] = []
-                if 'children' in j:
-                    for k in j['children']:
-                        structure[i['data']][j['data']].append(k['data'])
-    return structure
+    for section in body[0]['children']:
+        structure[section['data']] = {}
+        if 'children' in section:
+            for subsection in section['children']:
+                structure[section['data']][subsection['data']] = []
+                if 'children' in subsection:
+                    for item in subsection['children']:
+                        structure[section['data']][subsection['data']].append(item['data'])
+    return {unicode('structure'): structure, unicode('title'): body[0]['data'], unicode('id'): body[0]['attr']['id']}
     
 
 def place_order(request, item_id, client_id):

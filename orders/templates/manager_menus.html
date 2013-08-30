@@ -1,5 +1,5 @@
 <h3> Menu:</h3>
-<div id="demo2"></div>
+<div id="menu_display"></div>
 <input type="button" class="button" value="save" id="save" style="float:left;">
 
 </br>
@@ -11,11 +11,22 @@
 {{ json_menu|safe }}
 
 <script type='text/javascript'>
-	var st = $.parseJSON('{{ json_menu|safe }}');
-	$('#demo2').jstree({
-		"json_data": st,
+	var menu = $.parseJSON('{{ json_menu|safe }}');
+	$('#menu_display').jstree({
+		"json_data": menu,
 		"types": {
-			"max_depth": 2
+			"max_depth": 4,
+			"types": {
+				"root" : {
+					"icon": {
+						"image": "http://static.jstree.com/v.1.0rc/_docs/_drive.png"
+					},
+					"start_drag" : false,
+                    "move_node" : false,
+                    "delete_node" : false,
+                    "remove" : false
+				}
+			}
 		},
 		"themes": {
 			"theme": "apple"
@@ -23,7 +34,7 @@
 		"plugins" : [ "themes", "json_data", "ui", "dnd", "crrm", "contextmenu", "hotkeys", "unique", "types" ]
 		});
 	$("#save").click(function () {
-        var tree = $("#demo2").jstree("get_json", -1);
+        var tree = $("#menu_display").jstree("get_json", -1);
 		$.ajax({
 			data: {
 				'tree': JSON.stringify(tree),
