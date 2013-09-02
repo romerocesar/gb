@@ -1,19 +1,43 @@
-<h3> Menu:</h3>
-<div id="menu_display"></div>
-<input type="button" class="button" value="save" id="save" style="float:left;">
+<div id="tabs">
+	<ul>
+		{% for menu in menus %}
+			<li><a href="#tabs-{{ forloop.counter }}">{{ menu.title }}</a></li>
+		{% endfor %}
+	</ul>
+	{% for menu in menus %}
+		<div id="tabs-{{ forloop.counter }}">
+		</div>
+	{% endfor %}
+</div>
 
-</br>
-</br>
+<input type="button" class="button" value="Save" id="save" style="float:left;">
 
-{{ menu }}
-</br>
-</br>
-{{ json_menu|safe }}
+<script type="text/javascript">var menus = new Array();</script>
+{% for menu in json_menus %}
+	<script type="text/javascript">
+		menus['{{ forloop.counter0 }}'] = $.parseJSON('{{ menu|safe }}');
+	</script>
+{% endfor %}
 
 <script type='text/javascript'>
-	var menu = $.parseJSON('{{ json_menu|safe }}');
-	$('#menu_display').jstree({
-		"json_data": menu,
+	$("#save").click(function () {
+        var tree = $('.jstree[aria-expanded="true"]').jstree("get_json", -1);
+		$.ajax({
+			data: {
+				'tree': JSON.stringify(tree),
+				'csrfmiddlewaretoken': '{{ csrf_token }}'},
+			type: "post",
+		});
+    });
+	$(function() {
+    $( "#tabs" ).tabs().addClass( "ui-tabs-vertical ui-helper-clearfix" );
+    $( "#tabs li" ).removeClass( "ui-corner-top" ).addClass( "ui-corner-left" );
+  });
+  
+  	for (var i=0; i<menus.length; i++){
+		var j = i + 1;
+		$("#tabs-"+ j +"").jstree({
+		"json_data": menus[i],
 		"types": {
 			"max_depth": 4,
 			"types": {
@@ -33,13 +57,5 @@
 		},
 		"plugins" : [ "themes", "json_data", "ui", "dnd", "crrm", "contextmenu", "hotkeys", "unique", "types" ]
 		});
-	$("#save").click(function () {
-        var tree = $("#menu_display").jstree("get_json", -1);
-		$.ajax({
-			data: {
-				'tree': JSON.stringify(tree),
-				'csrfmiddlewaretoken': '{{ csrf_token }}'},
-			type: "post",
-		});
-    });
+	};
 </script>

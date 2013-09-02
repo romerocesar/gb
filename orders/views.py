@@ -163,49 +163,21 @@ def manager_items(request, client_id):
 def manager_menus(request, client_id):
     #TODO: some refactoring,
     #      make the form validations work with the javascript part
-    menu = dao.get_client_menu(client_id)
+    menus = dao.get_client_menus(client_id)
     items = dao.get_client_items(client_id)
     if request.method == 'POST':
         if request.is_ajax():
-            print jstree2normal(request.POST)
+            print jstree2mongo(request.POST)
     else:
         #This case handles when request.method == GET
         #When the page is loaded the first time
         pass  
     return render(request, 'desktop_index.html',
-                  {'menu': menu, 'items': items,
-                   'json_menu': normal2jstree(menu),
+                  {'menus': menus, 'items': items,
+                   'json_menus': mongo2jstree_list(menus),
                    'template': 'manager_menus.html',
                    'title': 'Manager'})
 
-def normal2jstree(menu):
-    tree = {'data': []}
-    i = 0
-    tree['data'].append({'data': menu['title'], 'attr': {'id': menu['_id'], 'rel': 'root'}, 'state': 'open', 'children': []})
-    for section in menu['structure']:
-        tree['data'][0]['children'].append({'data': section, 'state': 'open','children':[]})
-        j = 0
-        for subsection in menu['structure'][section]:
-            tree['data'][0]['children'][i]['children'].append({'data': subsection, 'state': 'open','children':[]})
-            for item in menu['structure'][section][subsection]:
-                tree['data'][0]['children'][i]['children'][j]['children'].append(item)
-            j += 1
-        i += 1
-    return simplejson.dumps(tree)
-
-def jstree2normal(tree):
-    body = simplejson.loads(tree['tree'])
-    structure = {}
-    for section in body[0]['children']:
-        structure[section['data']] = {}
-        if 'children' in section:
-            for subsection in section['children']:
-                structure[section['data']][subsection['data']] = []
-                if 'children' in subsection:
-                    for item in subsection['children']:
-                        structure[section['data']][subsection['data']].append(item['data'])
-    return {unicode('structure'): structure, unicode('title'): body[0]['data'], unicode('id'): body[0]['attr']['id']}
-    
 
 def place_order(request, item_id, client_id):
     '''Places an order for qty units of item_id from client_id. This
@@ -255,3 +227,43 @@ def update_order(request, order_id):
     client_id = dao.get_client_id(order_id)
     return render(request, 'index.html',
                   {'template':'updated.html', 'client_id':client_id})
+
+####################
+# Helper functions #
+####################
+
+def mongo2jstree(menu):
+    tree = {'data': []}
+    i = 0
+    tree['data'].append({'data': menu['title'], 'attr': {'id': menu['_id'], 'rel': 'root'}, 'state': 'open', 'children': []})
+    for section in menu['structure']:
+        tree['data'][0]['children'].append({'data': section, 'state': 'open','children':[]})
+        j = 0
+        for subsection in menu['structure'][section]:
+            tree['data'][0]['children'][i]['children'].append({'data': subsection, 'state': 'open','children':[]})
+            for item in menu['structure'][section][subsection]:
+                tree['data'][0]['children'][i]['children'][j]['children'].append(item)
+            j += 1
+        i += 1
+    return simplejson.dumps(tree)
+
+def mongo2jstree_list(menus):
+    js_menus = []
+    for menu in menus:
+        js_menus.append(mongo2jstree(menu))
+    return js_menus                  
+
+def jstree2mongo(tree):
+    body = simplejson.loads(tree['tree'])
+    structure = {}
+    for section in body[0]['children']:
+        structure[section['data']] = {}
+        if 'children' in section:
+            for subsection in section['children']:
+                structure[section['data']][subsection['data']] = []
+                if 'children' in subsection:
+                    for item in subsection['children']:
+                        structure[section['data']][subsection['data']].append(item['data'])
+    return {unicode('structure'): structure, unicode('title'): body[0]['data'], unicode('id'): body[0]['attr']['id']}
+    
+

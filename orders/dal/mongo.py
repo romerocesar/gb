@@ -39,6 +39,18 @@ class OrdersDAO:
     def get_menu(self, menu_id='m0'):
         '''Gets the menu that matches the specified menu ID'''
         return self.db.menus.find_one(menu_id)
+
+    def get_client_menus_list(self, client_id):
+        '''Gets the list of menus from the client'''
+        return self.db.clients.find_one({'_id': client_id})['menus']
+
+    def get_client_menus(self, client_id):
+        '''Gets all the content of all the menus of the client'''
+        menus_list = self.get_client_menus_list(client_id)
+        menus = []
+        for menu in menus_list:
+            menus.append(self.db.menus.find_one({'_id': menu}))
+        return menus
     
     def get_item(self,item_id=1):
         '''get the specified item from the DB'''
@@ -74,6 +86,8 @@ class OrdersDAO:
     def get_client_items(self, client_id):
         items = list(self.db.items.find({'client_id': client_id}))
         return items
+
+    
 
     def add_item(self, client_id, name, price, description):
         self.db.items.insert({'client_id': client_id,
