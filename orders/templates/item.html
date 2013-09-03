@@ -1,6 +1,8 @@
 <div data-role="page">
   <div data-role="header">
-    <h1>{{item.name}}</h1>
+    {% include 'menubtn.html' %}
+    <p>{{item.name}}</p>
+    {% include 'myordersbtn.html' %}
   </div>
   <div data-role="content">	
     <p>{{item.description}} - {{item.price}}</p>

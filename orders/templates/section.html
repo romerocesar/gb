@@ -1,11 +1,15 @@
 <div data-role="page">
-  <div data-role="header">{{name}}</div>
-  <div data-role="content">
-    <ul data-role="listview" data-divider-theme="d">
-      {% for item in items %}
-      <li><a href="{% url 'item' item.id %}">{{item.name}}</a></li>
-      {% endfor %}
-    </ul>
-  </div>
-  <div data-role="footer"/>
+<div data-role="header">
+  {% include 'menubtn.html' %}
+  <p>{{name}}</p>
+  {% include 'myordersbtn.html' %}
+</div>
+<div data-role="content">
+  <ul data-role="listview" data-divider-theme="d">
+    {% for item in items %}
+    <li><a href="{% url 'item' item.id %}">{{item.name}}</a></li>
+    {% endfor %}
+  </ul>
+</div>
+<div data-role="footer"/>
 </div>

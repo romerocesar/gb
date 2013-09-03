@@ -19,10 +19,25 @@ def menu(request, client_id, seat_id):
     # TODO: enforce only one session per seat until all orders in it are paid
     if 'seat_id' not in request.session:
         request.session['seat_id'] = seat_id
+    if 'client_it' not in request.session:
+        request.session['client_id'] = client_id
     menu['id'] = str(menu['_id'])
     return render(request, 'index.html',
                   {'menu':menu, 'template':'menu.html', 'title':'Menu',
                    'client_id':client_id, 'seat_id':seat_id})
+
+def back_to_menu(request):
+    '''Shortcut view for users to "return" back to the top of the menu
+    they're browsing. Since client_id and seat_id are not provided,
+    this only works if the user has a valid cookie that corresponds to
+    a session where client_id and seat_id have already been recorded;
+    this happens by default when they scan the QR code. If this is not
+    true, a 404 is returned.'''
+    if 'seat_id' in request.session and 'client_id' in request.session:
+        cid = request.session['client_id']
+        sid = request.session['seat_id']
+        return menu(request, cid, sid)
+    raise Http404
 
 def item(request, item_id):
     item = dao.get_item(item_id)
@@ -144,9 +159,12 @@ def place_order(request, item_id, client_id):
                   {'template':'confirmation.html', 'client':client_id, 'qty':quantity, 
                    'item_name':item_name})
 
-def myorders(request, client_id):
-    ''' Lists orders placed from the given seat_id'''
+def myorders(request):
+    ''' Lists orders placed from this session as indicated by the
+    session's seat_id and client_it. It will display orders that are
+    in placed, prepared or served status.'''
     seat_id = request.session['seat_id']
+    client_id = request.session['client_id']
     statii = (dao.ORDER_PLACED, dao.ORDER_PREPARED, dao.ORDER_SERVED)
     return list_orders(request, client_id, query={'seat_id':seat_id, 'status':statii})
 

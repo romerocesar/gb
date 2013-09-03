@@ -1,8 +1,7 @@
 <div data-role="page">
   <div data-role="header">
     <P>Menu</p>
-    {# TODO: centralize this button and display it throughout menu browsing, order confirmation and status update #}
-    <a href="{% url 'myorders' client_id %}" data-role="button">My Orders</a>
+    {% include 'myordersbtn.html' %}
   </div>
   <div data-role="content">
     <ul data-role="listview" data-divider-theme="d">

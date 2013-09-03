@@ -1,7 +1,8 @@
 <div data-role="page">
   <div data-role="header">
-    {# TODO: add links to 'my orders' as well as top menu #}
+    {% include 'menubtn.html' %}
     <p>Order Placed!</p>
+    {% include 'myordersbtn.html' %}
   </div><!-- /header -->
   <div data-role="content">	
     <p>{{qty}} {{item_name}} coming!. <br/>

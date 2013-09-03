@@ -1,5 +1,8 @@
 <div data-role="page">
-  <div data-role="header">Orders at {{client_name}}</div>
+  <div data-role="header">
+    {% include 'menubtn.html' %}
+    <p>Orders at {{client_name}}</p>
+  </div>
   <div data-role="content">
     <ul data-role="listview" data-divider-theme="d">
       {% for order in orders %}
