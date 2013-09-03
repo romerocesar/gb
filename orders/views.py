@@ -1,19 +1,28 @@
-from django.http import HttpResponse
+from django.http import HttpResponse, Http404
 from django.shortcuts import render, redirect
 
 from settings import dao
 
 from orders.forms import SectionForm, ItemForm, ItemInsert
 
-def menu(request, client_id):
+def menu(request, client_id, seat_id):
     try:
         menu = dao.get_client_menu(client_id)
     except ValueError:
         print('invalid client id '+client_id)
         menu = dao.get_client_menu()
+    # validate seat
+    if not dao.is_valid_seat(client_id, seat_id):
+        # TODO: in this case we should let the user browse the menu
+        # but not place orders. For now we just error.
+        raise Http404
+    # TODO: enforce only one session per seat until all orders in it are paid
+    if 'seat_id' not in request.session:
+        request.session['seat_id'] = seat_id
     menu['id'] = str(menu['_id'])
     return render(request, 'index.html',
-                  {'menu':menu, 'template':'menu.html', 'title':'Menu'})
+                  {'menu':menu, 'template':'menu.html', 'title':'Menu',
+                   'client_id':client_id, 'seat_id':seat_id})
 
 def item(request, item_id):
     item = dao.get_item(item_id)
@@ -125,22 +134,31 @@ def place_order(request, item_id, client_id):
     should add the order to the DB, show the user a confirmation
     message and redirect them to the previous section they were
     browsing'''
-    # TODO: orders should have a seat_id and an array of
-    # events. quantity should come via a POST request
+    # TODO: orders should have an array of events. quantity should
+    # come via a POST request. Validate all input.
     quantity = request.GET['quantity']
+    seat_id = request.session['seat_id']
     print('place_orders', item_id, client_id, quantity)
-    dao.add_order(client_id, item_id, quantity)
+    dao.add_order(item_id, quantity, client_id, seat_id)
     item_name = dao.get_item(item_id)['name']
     return render(request, 'index.html',
                   {'template':'confirmation.html', 'client':client_id, 'qty':quantity, 
                    'item_name':item_name})
+
+def myorders(request, client_id):
+    ''' Lists orders placed from the given seat_id'''
+    seat_id = request.session['seat_id']
+    statii = (dao.ORDER_PLACED, dao.ORDER_PREPARED, dao.ORDER_SERVED)
+    return list_orders(request, client_id, query={'seat_id':seat_id, 'status':statii})
 
 def list_orders(request, client_id, query={}):
     '''Lists orders in the specified client's queue. It defaults to
     the pending orders, but the view should provide a way for the
     server or manager to filter by any combination of date, status and
     seat'''
-    # TODO: implement the filters mentioned above
+    # default to ORDER_PLACED for now
+    if 'status' not in query:
+        query['status'] = dao.ORDER_PLACED
     orders = dao.list_orders(client_id, query)
     client_name = dao.get_client(client_id)['name']
     return render(request, 'index.html',

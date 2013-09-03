@@ -4,19 +4,11 @@ import datetime
 
 from bson.objectid import ObjectId
 from bootstrap import menus, items, clients
+from orders import OrdersDAO
 
-class OrdersDAO:
+class MongoOrdersDAO(OrdersDAO):
     '''This class defines the data access object to be used for data
     stored in MongoDB'''
-
-    # order statii
-    ORDER_PLACED = '_placed_'
-    ORDER_PREPARED = '_prepared_'
-    ORDER_SERVED = '_served_'
-    ORDER_PAID = '_paid_'
-    ORDER_RETURNED = '_returned_'
-
-    ORDER_STATII = (ORDER_PLACED, ORDER_RETURNED, ORDER_PAID, ORDER_SERVED, ORDER_PREPARED)
 
     def __init__(self, bootstrap=False):
         self.client = pymongo.MongoClient()
@@ -139,13 +131,12 @@ class OrdersDAO:
         menu_id = self.get_menu_id(client_id)
         self.db.menus.update({'_id': menu_id}, {'$pull': { "structure." + str(section): item_id}})
 
-    def add_order(self, client_id, item_id, quantity):
-        # TODO: orders will need to have a seat_id and an array of
-        # events. Each event will have a server_id, a timestamp and an
-        # action so the order history can be traced and troubleshooted
-        # easily.
+    def add_order(self, item_id, quantity, client_id, seat_id):
+        # TODO: Orders will need to have an array of events. Each
+        # event will have a server_id, a timestamp and an action so
+        # the order history can be traced and troubleshooted easily.
         print('add_order',client_id, item_id, quantity)
-        order = {'client_id':client_id, 'item_id':item_id, 'quantity':quantity,
+        order = {'client_id':client_id, 'seat_id':seat_id, 'item_id':item_id, 'quantity':quantity,
                  'status':self.ORDER_PLACED}
         return self.db.orders.insert(order)
 
@@ -154,9 +145,11 @@ class OrdersDAO:
         query. If query is not given, all orders in _placed_ status
         for the given client will be returned'''
         print('list_orders', client_id, query)
-        if not query:
-            query['status'] = self.ORDER_PLACED
-            query['client_id'] = client_id
+        # TODO: move all field names to variables so this won't have
+        # to change so dramatically whenever there's a schema change
+        query['client_id'] = client_id
+        if 'status' in query and type(query['status']) in (tuple, list):
+            query['status'] = {'$in':query['status']}
         orders = self.db.orders.find(query)
         res = []
         names = {}
@@ -203,6 +196,15 @@ class OrdersDAO:
         'Updates the status of the specified order. Returns the new status of the order.'
         res = self.db.orders.find_and_modify({'_id':ObjectId(order_id)},{'$set':{'status':status}}, new=True)
         return res['status']
+
+    def is_valid_seat(self, client_id, seat_id):
+        'Returns whether the given seat id belongs the the given client id'
+        try:
+            seats = self.get_client(client_id)['seats']
+        except Exception as e:
+            print(e)
+            return False
+        return seat_id in seats
 
 # Helper methods. The functions below are not part of the 'interface'
 # and need not be implemented by other OrdersDAO

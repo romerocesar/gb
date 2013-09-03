@@ -2,8 +2,9 @@
 database or provide real data, but rather just keeps objects in memory
 to be used for testing or when the actual DB has not been setup in the
 dev environment'''
+from orders import OrdersDAO
 
-class OrdersDAO:
+class TestOrdersDAO(OrdersDAO):
 
     def __init__(self):
         self.menus = [{'Food':['Appetizers', 'Main Dishes', 'Desserts'],

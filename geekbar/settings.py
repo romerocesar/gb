@@ -102,6 +102,9 @@ MIDDLEWARE_CLASSES = (
     # 'django.middleware.clickjacking.XFrameOptionsMiddleware',
 )
 
+# TODO: setup Memcached or MongoDB sessions before going to production
+SESSION_ENGINE = 'django.contrib.sessions.backends.file'
+
 ROOT_URLCONF = 'geekbar.urls'
 
 # Python dotted path to the WSGI application used by Django's runserver.

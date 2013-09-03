@@ -10,5 +10,5 @@ from dal import mongo, test
 # it up and loading it with test data by simply passing True to the
 # constructor. See dal/mongo.py to see the data being loaded. NOTE:
 # only enable this in a dev/test environment - never in production
-# dao = test.OrdersDAO()
-dao = mongo.OrdersDAO()
+# dao = test.TestOrdersDAO()
+dao = mongo.MongoOrdersDAO(True)

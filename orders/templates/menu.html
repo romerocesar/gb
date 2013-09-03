@@ -1,5 +1,9 @@
 <div data-role="page">
-  <div data-role="header">Menu</div>
+  <div data-role="header">
+    <P>Menu</p>
+    {# TODO: centralize this button and display it throughout menu browsing, order confirmation and status update #}
+    <a href="{% url 'myorders' client_id %}" data-role="button">My Orders</a>
+  </div>
   <div data-role="content">
     <ul data-role="listview" data-divider-theme="d">
       {% for division, sections in menu.structure.items %}

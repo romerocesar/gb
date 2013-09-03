@@ -2,6 +2,7 @@ clients = [
     {'_id':'c0',
      'menu':'m0',
      'menus': ['m0', 'm1'], 
+     'seats':['s0', 's1','s2','s3'],
      'name':'Foo'
     }
 ]
