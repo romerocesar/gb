@@ -134,9 +134,8 @@ def place_order(request, item_id, client_id):
     should add the order to the DB, show the user a confirmation
     message and redirect them to the previous section they were
     browsing'''
-    # TODO: orders should have an array of events. quantity should
-    # come via a POST request. Validate all input.
-    quantity = request.GET['quantity']
+    # TODO: orders should have an array of events. Validate all input.
+    quantity = request.POST['quantity']
     seat_id = request.session['seat_id']
     print('place_orders', item_id, client_id, quantity)
     dao.add_order(item_id, quantity, client_id, seat_id)
