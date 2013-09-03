@@ -237,12 +237,12 @@ def mongo2jstree(menu):
     i = 0
     tree['data'].append({'data': menu['title'], 'attr': {'id': menu['_id'], 'rel': 'root'}, 'state': 'open', 'children': []})
     for section in menu['structure']:
-        tree['data'][0]['children'].append({'data': section, 'state': 'open','children':[]})
+        tree['data'][0]['children'].append({'data': section, 'attr': {'rel': 'section'},'state': 'open','children':[]})
         j = 0
         for subsection in menu['structure'][section]:
-            tree['data'][0]['children'][i]['children'].append({'data': subsection, 'state': 'open','children':[]})
+            tree['data'][0]['children'][i]['children'].append({'data': subsection, 'attr': {'rel': 'subsection'}, 'state': 'open','children':[]})
             for item in menu['structure'][section][subsection]:
-                tree['data'][0]['children'][i]['children'][j]['children'].append(item)
+                tree['data'][0]['children'][i]['children'][j]['children'].append({'data': dao.get_item(item)['name'], 'attr': {'id': item, 'rel': 'item'}})
             j += 1
         i += 1
     return simplejson.dumps(tree)
@@ -263,7 +263,7 @@ def jstree2mongo(tree):
                 structure[section['data']][subsection['data']] = []
                 if 'children' in subsection:
                     for item in subsection['children']:
-                        structure[section['data']][subsection['data']].append(item['data'])
+                        structure[section['data']][subsection['data']].append(item['attr']['id'])
     return {unicode('structure'): structure, unicode('title'): body[0]['data'], unicode('id'): body[0]['attr']['id']}
     
 

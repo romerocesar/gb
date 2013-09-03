@@ -12,6 +12,7 @@
 
 <input type="button" class="button" value="Save" id="save" style="float:left;">
 
+
 <script type="text/javascript">var menus = new Array();</script>
 {% for menu in json_menus %}
 	<script type="text/javascript">
@@ -40,8 +41,10 @@
 		"json_data": menus[i],
 		"types": {
 			"max_depth": 4,
+			"valid_children" : ["root"],
 			"types": {
 				"root" : {
+					"valid_children": ["section", "subsection"],
 					"icon": {
 						"image": "http://static.jstree.com/v.1.0rc/_docs/_drive.png"
 					},
@@ -49,6 +52,19 @@
                     "move_node" : false,
                     "delete_node" : false,
                     "remove" : false
+				},
+				"section": {
+					"valid_children" : ["section", "subsection"]
+				},
+				"subsection": {
+					"valid_children": ["item"]
+				},
+				"item": {
+					"valid_children": "none",
+					"icon": {
+						"image": "http://static.jstree.com/v.1.0rc/_demo/file.png"
+					},
+					"rename" : false
 				}
 			}
 		},

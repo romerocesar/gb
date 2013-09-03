@@ -54,9 +54,7 @@ class OrdersDAO:
     
     def get_item(self,item_id=1):
         '''get the specified item from the DB'''
-        print('get_item',item_id)
         item = self.db.items.find_one({'_id':item_id})
-        print('item',item)
         return item
 
     def get_items(self,ids):
@@ -86,7 +84,6 @@ class OrdersDAO:
     def get_client_items(self, client_id):
         items = list(self.db.items.find({'client_id': client_id}))
         return items
-
     
 
     def add_item(self, client_id, name, price, description):

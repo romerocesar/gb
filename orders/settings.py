@@ -11,4 +11,4 @@ from dal import mongo, test
 # constructor. See dal/mongo.py to see the data being loaded. NOTE:
 # only enable this in a dev/test environment - never in production
 # dao = test.OrdersDAO()
-dao = mongo.OrdersDAO()
+dao = mongo.OrdersDAO(True)
