@@ -138,6 +138,11 @@ INSTALLED_APPS = (
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
+    'formatters': {
+        'basic': {
+            'format':'[%(asctime)s] %(levelname)s %(module)s %(funcName)s %(message)s'
+        }
+    },
     'filters': {
         'require_debug_false': {
             '()': 'django.utils.log.RequireDebugFalse'
@@ -148,6 +153,17 @@ LOGGING = {
             'level': 'ERROR',
             'filters': ['require_debug_false'],
             'class': 'django.utils.log.AdminEmailHandler'
+        },
+        'console': {
+            'level': 'DEBUG',
+            'class': 'logging.StreamHandler',
+            'formatter': 'basic'
+        },
+        'logfile': {
+            'level': 'INFO',
+            'class': 'logging.FileHandler',
+            'filename': 'geekbar.log',
+            'formatter': 'basic'
         }
     },
     'loggers': {
@@ -156,5 +172,9 @@ LOGGING = {
             'level': 'ERROR',
             'propagate': True,
         },
+        'orders': {
+            'handlers': ['console'],
+            'level': 'DEBUG'
+        }
     }
 }

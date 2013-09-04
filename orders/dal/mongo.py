@@ -1,3 +1,4 @@
+import logging
 import os
 import pymongo
 import datetime
@@ -5,6 +6,8 @@ import datetime
 from bson.objectid import ObjectId
 from bootstrap import menus, items, clients
 from orders import OrdersDAO
+
+logger = logging.getLogger('orders.mongo')
 
 class MongoOrdersDAO(OrdersDAO):
     '''This class defines the data access object to be used for data
@@ -34,23 +37,22 @@ class MongoOrdersDAO(OrdersDAO):
     
     def get_item(self,item_id=1):
         '''get the specified item from the DB'''
-        print('get_item',item_id)
+        logger.info('item_id: %s',item_id)
         item = self.db.items.find_one({'_id':item_id})
-        print('item',item)
+        logger.info('item %s',item)
         return item
 
     def get_items(self,ids):
         '''get a list of menu items that corresponds to the specified
         ids. If an id is invalid, it will be skipped silently so that
         other valid items can still be retrieved'''
-        # TODO: change this to actually use the input list of ids
-        print('get_items',ids)
+        logger.info('ids %s', ids)
         items  = self.db.items.find({'_id':{'$in':ids}})
         res = []
         for item in items:
             item['id'] = str(item['_id'])
             res.append(item)
-        print('res',res)
+        logger.info('items %s',res)
         return res
 
     def get_menu_id(self, client_id):
@@ -135,7 +137,7 @@ class MongoOrdersDAO(OrdersDAO):
         # TODO: Orders will need to have an array of events. Each
         # event will have a server_id, a timestamp and an action so
         # the order history can be traced and troubleshooted easily.
-        print('add_order',client_id, item_id, quantity)
+        logger.info({'item':item_id, 'qty':quantity, 'client':client_id, 'seat':seat_id})
         order = {'client_id':client_id, 'seat_id':seat_id, 'item_id':item_id, 'quantity':quantity,
                  'status':self.ORDER_PLACED}
         return self.db.orders.insert(order)
@@ -144,7 +146,7 @@ class MongoOrdersDAO(OrdersDAO):
         '''Lists orders for the specified client matched by the given
         query. If query is not given, all orders in _placed_ status
         for the given client will be returned'''
-        print('list_orders', client_id, query)
+        logger.info('client_id: %s, query: %s', client_id, query)
         # TODO: move all field names to variables so this won't have
         # to change so dramatically whenever there's a schema change
         query['client_id'] = client_id
@@ -162,13 +164,14 @@ class MongoOrdersDAO(OrdersDAO):
                 order['item_name'] = names[iid] = self.get_item_name(iid)
             order['delay'] = compute_delay(order)
             res.append(order)
-        print('orders',res)
+        logger.info('orders: %s',res)
         return res
 
     def get_item_name(self, item_id):
         'Simply get the item name for the given item ID'
+        logger.info('item_id: %s', item_id)
         ans = self.db.items.find_one(item_id)['name']
-        print('get_item_name',ans)
+        logger.info('name: %s', ans)
         return ans
 
     def get_client(self, client_id):
@@ -197,12 +200,14 @@ class MongoOrdersDAO(OrdersDAO):
         res = self.db.orders.find_and_modify({'_id':ObjectId(order_id)},{'$set':{'status':status}}, new=True)
         return res['status']
 
-    def is_valid_seat(self, client_id, seat_id):
-        'Returns whether the given seat id belongs the the given client id'
+    def is_valid_seat(self, client_id, seat_id): 
+        '''Returns whether the given seat id belongs the the given
+        client id'''
+        logger.info('client_id: %s, seat_id: %s', client_id, seat_id)
         try:
             seats = self.get_client(client_id)['seats']
         except Exception as e:
-            print(e)
+            logger.exception('Error validating seat',e)
             return False
         return seat_id in seats
 

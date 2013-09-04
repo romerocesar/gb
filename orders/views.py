@@ -1,15 +1,18 @@
+import logging
+
 from django.http import HttpResponse, Http404
 from django.shortcuts import render, redirect
 
 from settings import dao
-
 from orders.forms import SectionForm, ItemForm, ItemInsert
+
+logger = logging.getLogger('orders.views')
 
 def menu(request, client_id, seat_id):
     try:
         menu = dao.get_client_menu(client_id)
-    except ValueError:
-        print('invalid client id '+client_id)
+    except ValueError as e:
+        logger.error('invalid client id '+client_id, e)
         menu = dao.get_client_menu()
     # validate seat
     if not dao.is_valid_seat(client_id, seat_id):
@@ -46,11 +49,11 @@ def item(request, item_id):
                  {'template':'item.html', 'title':item['name'], 'item':item})
 
 def section(request, menu_id, division, section):
-    print('section',menu_id,section)
+    logger.info('%s::%s::%s', menu_id, division, section)
     menu = dao.get_menu(menu_id)
     ids = menu['structure'][division][section]
     items = dao.get_items(ids)
-    print('items ', items)
+    logger.debug('items %s', items)
     return render(request, 'index.html',
                 {'template':'section.html', 'name':section, 'items':items})
 
@@ -152,7 +155,7 @@ def place_order(request, item_id, client_id):
     # TODO: orders should have an array of events. Validate all input.
     quantity = request.POST['quantity']
     seat_id = request.session['seat_id']
-    print('place_orders', item_id, client_id, quantity)
+    logger.info('item_id:%s, client_id:%s, quantity:%s', item_id, client_id, quantity)
     dao.add_order(item_id, quantity, client_id, seat_id)
     item_name = dao.get_item(item_id)['name']
     return render(request, 'index.html',
@@ -194,7 +197,7 @@ def order(request, order_id):
 
 def update_order(request, order_id):
     '''Updates the specified order with the params in the request'''
-    print('update_order',order_id)
+    logger.info('order:%s', order_id)
     status = request.POST['status']
     res = dao.update_order(order_id, status)
     if res != status:
