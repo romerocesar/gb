@@ -1,3 +1,28 @@
+<!-- Button trigger modal -->
+  <a data-toggle="modal" href="#add_menu_modal" class="btn btn-primary btn-lg">Add Menu</a>
+
+  <!-- Modal -->
+  <div class="modal fade" id="add_menu_modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+          <h4 class="modal-title">Add Menu</h4>
+        </div>
+        <div class="modal-body">
+			<form action="" method="post" id="add_menu_form">
+				<div class="ajaxwrapper">
+				Menu title: <input type="text" name="tab_title" id="tab_title" value="" class="ui-widget-content ui-corner-all" size="40"/>
+				{% csrf_token %}
+				</div>
+				</br>
+				<input type="submit" value="Add" name="add_menu" class="btn btn-primary">
+			</form>
+        </div>
+      </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+  </div><!-- /.modal -->
+
 <div id="tabs">
 	<ul>
 		{% for menu in menus %}
@@ -21,10 +46,12 @@
 {% endfor %}
 
 <script type='text/javascript'>
+
 	$("#save").click(function () {
         var tree = $('.jstree[aria-expanded="true"]').jstree("get_json", -1);
 		$.ajax({
 			data: {
+				'save_menu': '',
 				'tree': JSON.stringify(tree),
 				'csrfmiddlewaretoken': '{{ csrf_token }}'},
 			type: "post",

@@ -167,7 +167,13 @@ def manager_menus(request, client_id):
     items = dao.get_client_items(client_id)
     if request.method == 'POST':
         if request.is_ajax():
-            print jstree2mongo(request.POST)
+            if 'add_menu' in request.POST:
+                #TODO: make this add the new menu to the db
+                print request.POST
+            if 'save_menu' in request.POST:
+                #TODO: make this update the db
+                print jstree2mongo(request.POST)
+
     else:
         #This case handles when request.method == GET
         #When the page is loaded the first time
@@ -233,6 +239,9 @@ def update_order(request, order_id):
 ####################
 
 def mongo2jstree(menu):
+    '''Changes the structure of the menu that uses mongo
+    to a way jstree can read it'''
+    #TODO: maybe use some recursion so the tree doesnt have a fixed depth
     tree = {'data': []}
     i = 0
     tree['data'].append({'data': menu['title'], 'attr': {'id': menu['_id'], 'rel': 'root'}, 'state': 'open', 'children': []})
@@ -248,12 +257,16 @@ def mongo2jstree(menu):
     return simplejson.dumps(tree)
 
 def mongo2jstree_list(menus):
+    '''handles multiple menus with the function above'''
     js_menus = []
     for menu in menus:
         js_menus.append(mongo2jstree(menu))
     return js_menus                  
 
 def jstree2mongo(tree):
+    '''Changes the structure of the menu that uses jstree
+    to the origal way that mongo uses'''
+    #TODO: maybe use some recursion so it doesnt read the tree to a fixed depth
     body = simplejson.loads(tree['tree'])
     structure = {}
     for section in body[0]['children']:
