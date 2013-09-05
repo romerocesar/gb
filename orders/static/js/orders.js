@@ -48,8 +48,8 @@ $(document).ready(function() {
 		return false;
 	});
 	
-	var pathname = location.pathname.substring(1);
-	var parts = pathname.split(/\//);
+	
+	var parts = location.pathname.split("/");
 	var url = parts[parts.length - 1];
     // Will only work if string in href matches with location
         $('ul.nav a[href="./' + url + '"]').parent().addClass('active');
