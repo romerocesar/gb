@@ -35,7 +35,7 @@
 	{% endfor %}
 </div>
 
-<input type="button" class="button" value="Save" id="save" style="float:left;">
+<input type="button" class="button" value="Save" id="save_menu_button" style="float:left;">
 
 
 <script type="text/javascript">var menus = new Array();</script>
@@ -45,9 +45,11 @@
 	</script>
 {% endfor %}
 
-<script type='text/javascript'>
 
-	$("#save").click(function () {
+<script type='text/javascript'>
+	
+	
+	$("#save_menu_button").click(function () {
         var tree = $('.jstree[aria-expanded="true"]').jstree("get_json", -1);
 		$.ajax({
 			data: {
@@ -67,7 +69,7 @@
 		$("#tabs-"+ j +"").jstree({
 		"json_data": menus[i],
 		"types": {
-			"max_depth": 4,
+
 			"valid_children" : ["root"],
 			"types": {
 				"root" : {

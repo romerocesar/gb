@@ -172,7 +172,8 @@ def manager_menus(request, client_id):
                 print request.POST
             if 'save_menu' in request.POST:
                 #TODO: make this update the db
-                print jstree2mongo(request.POST)
+                #print jstree2mongo(request.POST)
+                print jstree2mongo2(request.POST)
 
     else:
         #This case handles when request.method == GET
@@ -266,7 +267,8 @@ def mongo2jstree_list(menus):
 def jstree2mongo(tree):
     '''Changes the structure of the menu that uses jstree
     to the origal way that mongo uses'''
-    #TODO: maybe use some recursion so it doesnt read the tree to a fixed depth
+    #TODO: maybe use some recursion so it doesnt read the tree to a fixed depth <-- Done below
+    #Waiting for cesar's approval to delete this function and keep the new one below :)
     body = simplejson.loads(tree['tree'])
     structure = {}
     for section in body[0]['children']:
@@ -279,4 +281,61 @@ def jstree2mongo(tree):
                         structure[section['data']][subsection['data']].append(item['attr']['id'])
     return {unicode('structure'): structure, unicode('title'): body[0]['data'], unicode('id'): body[0]['attr']['id']}
     
+def jstree2mongo2(tree):
+    '''Changes the structure of the menu that uses jstree
+    to the original way that mongo uses.
+    P.S: This function can go to infinite depth'''
+    body = simplejson.loads(tree['tree'])
+    structure = {}
+    explore(body[0], structure = structure)
+    return {unicode('structure'): structure, unicode('title'): body[0]['data'], unicode('id'): body[0]['attr']['id']}
+
+def dictizeString(string, dictionary, item_id = unicode(), subsection = unicode(), section = unicode()):
+    '''Help enters the path(string) in the structure(dictionary)''' 
+    while string.startswith('/'):
+        string = string[1:]
+    parts = string.split('/', 1)
+    if len(parts) > 1:
+        branch = dictionary.setdefault(parts[0], {})
+        dictizeString(parts[1], branch, item_id = item_id, subsection = subsection, section = section)
+    else:
+        if item_id:
+            if dictionary.has_key(parts[0]):
+                 dictionary[parts[0]].append(item_id)
+            else:
+                 dictionary[parts[0]] = [item_id]
+        if subsection:
+            if not dictionary.has_key(parts[0]):
+                 dictionary[parts[0]] = []
+        if section:
+            if not dictionary.has_key(parts[0]):
+                 dictionary[parts[0]] = {}
+
+                                 
+def explore(data, path = '', structure = {}):
+    '''Explores de jstree with recursion'''
+    if data['attr']['rel'] == 'root':
+        if 'children' in data:
+            for child in data['children']:
+                explore(child, structure = structure)
+            
+    elif data['attr']['rel'] == 'section': 
+        path += '/' + data['data']
+        dictizeString(path, structure, section = data['data'])
+        if 'children' in data:
+            for child in data['children']:
+                explore(child, path = path, structure = structure)
+                
+    elif data['attr']['rel'] == 'subsection':
+        path += '/' + data['data']
+        dictizeString(path, structure, subsection = data['data'])
+        if 'children' in data:
+            for child in data['children']:
+                explore(child, path = path, structure = structure)
+                
+    elif data['attr']['rel'] == 'item':
+        dictizeString(path, structure, item_id = data['attr']['id'])
+
+
+
 
