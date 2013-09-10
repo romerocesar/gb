@@ -242,7 +242,7 @@ def update_order(request, order_id):
 def mongo2jstree(menu):
     '''Changes the structure of the menu that uses mongo
     to a way jstree can read it'''
-    #TODO: maybe use some recursion so the tree doesnt have a fixed depth
+    #TODO: maybe use some recursion so the tree doesnt have a fixed depth <-- Done below
     tree = {'data': []}
     i = 0
     tree['data'].append({'data': menu['title'], 'attr': {'id': menu['_id'], 'rel': 'root'}, 'state': 'open', 'children': []})
@@ -257,11 +257,53 @@ def mongo2jstree(menu):
         i += 1
     return simplejson.dumps(tree)
 
+def mongo2jstree2(menu):
+    '''Changes the structure of the menu that uses mongo
+    to a way jstree can read it
+    P.S: This function can go to infinite depth'''
+    tree = {'data': []}
+    i = 0
+    tree['data'].append({'data': menu['title'], 'attr': {'id': menu['_id'], 'rel': 'root'}, 'state': 'open', 'children': []})
+    explo(menu, tree = tree)
+    return simplejson.dumps(tree)
+
+def explo(data, name='', level = 0, path=[], tree = {'data': []}):
+    if 'structure' in data:
+        for child in data['structure']:
+            explo(data['structure'][child], name=child, tree = tree)
+    elif type(data) is dict:
+        level += 1
+        ##### SECTIONS #####
+        path.insert(level-1, name)
+        path = path[:level]
+        eval(p2d(path, level)).insert(0, {'data': name, 'attr': {'rel': 'section'},'state': 'open','children':[]})
+
+        for child in data:
+            explo(data[child], name=child, level=level, path=path, tree=tree)
+    elif type(data) is list:
+        level += 1
+        ##### SUBSECTIONS ######
+        path.insert(level-1, name)
+        path = path[:level]
+        eval(p2d(path, level)).insert(0, {'data': name, 'attr': {'rel': 'subsection'}, 'state': 'open','children':[]})
+       
+        level += 1
+        for child in data:
+            ##### ITEMS #####
+            eval(p2d(path, level)).insert(0, {'data': dao.get_item(child)['name'], 'attr': {'id': child, 'rel': 'item'}})
+
+
+def p2d(path, level):
+    string = "tree['data'][0]['children']"
+    for branch in path[:level-1]:
+        string += "[0]['children']"
+    return string
+
 def mongo2jstree_list(menus):
     '''handles multiple menus with the function above'''
     js_menus = []
     for menu in menus:
-        js_menus.append(mongo2jstree(menu))
+        js_menus.append(mongo2jstree2(menu))
     return js_menus                  
 
 def jstree2mongo(tree):
