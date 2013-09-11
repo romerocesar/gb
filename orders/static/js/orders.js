@@ -41,7 +41,8 @@ $(document).ready(function() {
 				url: $(this).attr('action'),
 				success: function(response) {
 					$(this).find('.ajaxwrapper').html(response);
-					$('#tabs').children('ul').append('<li class="ui-state-default ui-corner-left" role="tab" tabindex="-1">'+title+'</li>')
+					$('#tabs').children('ul').append('<li class="ui-state-default ui-corner-left" role="tab" tabindex="-1" aria-controls="tabs-3" aria-labelledby="ui-id-3" aria-selected="false">'+title+'</li>');
+					$('#tabs').append('<div id="tabs-3"></div>');
 				}
 			});
 		return false;

@@ -164,23 +164,24 @@ def manager_menus(request, client_id):
     #TODO: some refactoring,
     #      make the form validations work with the javascript part
     menus = dao.get_client_menus(client_id)
-    items = dao.get_client_items(client_id)
+    items = dao.get_client_items_name_id(client_id)
     if request.method == 'POST':
         if request.is_ajax():
             if 'add_menu' in request.POST:
                 #TODO: make this add the new menu to the db
                 print request.POST
             if 'save_menu' in request.POST:
-                #TODO: make this update the db
                 #print jstree2mongo(request.POST)
-                print jstree2mongo2(request.POST)
+                menu = jstree2mongo2(request.POST)
+                dao.update_menu_title(menu['id'], menu['title'])
+                dao.update_menu_structure(menu['id'], menu['structure'])
 
     else:
         #This case handles when request.method == GET
         #When the page is loaded the first time
         pass  
     return render(request, 'desktop_index.html',
-                  {'menus': menus, 'items': items,
+                  {'menus': menus, 'items': simplejson.dumps(items),
                    'json_menus': mongo2jstree_list(menus),
                    'template': 'manager_menus.html',
                    'title': 'Manager'})

@@ -12,7 +12,7 @@
         <div class="modal-body">
 			<form action="" method="post" id="add_menu_form">
 				<div class="ajaxwrapper">
-				Menu title: <input type="text" name="tab_title" id="tab_title" value="" class="ui-widget-content ui-corner-all" size="40"/>
+				Menu title: <input type="text" name="menu_title" id="tab_title" value="" class="ui-widget-content ui-corner-all" size="40"/>
 				{% csrf_token %}
 				</div>
 				</br>
@@ -22,6 +22,7 @@
       </div><!-- /.modal-content -->
     </div><!-- /.modal-dialog -->
   </div><!-- /.modal -->
+  
 
 <div id="tabs">
 	<ul>
@@ -38,15 +39,18 @@
 <input type="button" class="button" value="Save" id="save_menu_button" style="float:left;">
 
 
-<script type="text/javascript">var menus = new Array();</script>
+<script type="text/javascript">var menus = new Array()</script>
 {% for menu in json_menus %}
 	<script type="text/javascript">
 		menus['{{ forloop.counter0 }}'] = $.parseJSON('{{ menu|safe }}');
 	</script>
 {% endfor %}
 
+
+
+
 <script type='text/javascript'>
-	
+	var items = {{ items|safe }};
 	
 	$("#save_menu_button").click(function () {
         var tree = $('.jstree[aria-expanded="true"]').jstree("get_json", -1);
@@ -99,7 +103,47 @@
 		"themes": {
 			"theme": "apple"
 		},
-		"plugins" : [ "themes", "json_data", "ui", "dnd", "crrm", "contextmenu", "hotkeys", "unique", "types", "sort" ]
+		"plugins" : [ "themes", "json_data", "ui", "dnd", "crrm", "contextmenu", "hotkeys", "unique", "types", "sort" ],
+		"contextmenu": {
+			"items": {
+				"ccp": false,
+				"create": false,
+				"rename": false,
+				"remove": false,
+				"Create": {
+					"label": "Create",
+					"separator_after": true,
+					"submenu": {
+						"Section": {
+							"label": "Section",
+							"action": function (obj) {
+								this.create(obj, "inside", {"data": "New Section", "state": "open", "attr":{"rel": "section"}}); 
+							}
+						},
+						"Sub": {
+							"label": "Sub-Section",
+							"action": function (obj) {
+								this.create(obj, "inside", {"data": "New Sub-Section", "state": "open", "attr":{"rel": "subsection"}}); 
+							}
+						}
+					}
+				},
+				"Insert": {
+					"label": "Insert Item",
+					"separator_after": true,
+					"action": function(obj){alert("Display all the items to select from them")} 
+				},
+				"Rename" : {
+					"label" : "Rename",
+					"action" : function (obj) { this.rename(obj); }
+				},
+				"Remove": {
+					"label": "Remove",
+					"action": function(obj) { this.remove(obj); }
+				}
+			}
+		}
 		});
 	};
+	
 </script>

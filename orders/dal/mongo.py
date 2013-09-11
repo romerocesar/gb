@@ -84,6 +84,13 @@ class OrdersDAO:
     def get_client_items(self, client_id):
         items = list(self.db.items.find({'client_id': client_id}))
         return items
+
+    def get_client_items_name_id(self, client_id):
+        items_list = []
+        items = list(self.db.items.find({'client_id': client_id}))
+        for item in items:
+            items_list.append({'id': item['_id'], 'name': item['name']})
+        return items_list
     
 
     def add_item(self, client_id, name, price, description):
@@ -214,6 +221,14 @@ class OrdersDAO:
         'Updates the status of the specified order. Returns the new status of the order.'
         res = self.db.orders.find_and_modify({'_id':ObjectId(order_id)},{'$set':{'status':status}}, new=True)
         return res['status']
+
+    def update_menu_structure(self, menu_id, structure):
+        'Updates de structure of the menu'
+        self.db.menus.update({'_id': menu_id}, {'$set': {'structure': structure}})
+
+    def update_menu_title(self, menu_id, title):
+        'Updates de title of the menu'
+        self.db.menus.update({'_id': menu_id}, {'$set': {'title': title}})
 
 # Helper methods. The functions below are not part of the 'interface'
 # and need not be implemented by other OrdersDAO
