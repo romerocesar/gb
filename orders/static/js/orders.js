@@ -1,4 +1,8 @@
 $(document).ready(function() {
+$(function() {
+    $( "#tabs" ).tabs().addClass( "ui-tabs-vertical ui-helper-clearfix" );
+    $( "#tabs li" ).removeClass( "ui-corner-top" ).addClass( "ui-corner-left" );
+  });
     $('#myTable').tablesorter({
 		sortList: [[0,0], [1,0]],
 		headers: {
@@ -40,9 +44,8 @@ $(document).ready(function() {
 				type: $(this).attr('method'),
 				url: $(this).attr('action'),
 				success: function(response) {
-					$(this).find('.ajaxwrapper').html(response);
-					$('#tabs').children('ul').append('<li class="ui-state-default ui-corner-left" role="tab" tabindex="-1" aria-controls="tabs-3" aria-labelledby="ui-id-3" aria-selected="false">'+title+'</li>');
-					$('#tabs').append('<div id="tabs-3"></div>');
+					//$('#ttestt').html(response);
+					//$('#tabs').children('ul').append('<li class="ui-state-default ui-corner-left" role="tab" tabindex="-1" aria-controls="tabs-3" aria-labelledby="ui-id-3" aria-selected="false">'+title+'</li>');
 				}
 			});
 		return false;

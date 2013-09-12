@@ -23,7 +23,7 @@
     </div><!-- /.modal-dialog -->
   </div><!-- /.modal -->
   
-
+<div id="ttestt">
 <div id="tabs">
 	<ul>
 		{% for menu in menus %}
@@ -35,8 +35,9 @@
 		</div>
 	{% endfor %}
 </div>
-
+</div>
 <input type="button" class="button" value="Save" id="save_menu_button" style="float:left;">
+<input type="button" class="button" value="Set Active" id="active_menu_button" style="float:left;">
 
 
 <script type="text/javascript">var menus = new Array()</script>
@@ -58,14 +59,23 @@
 			data: {
 				'save_menu': '',
 				'tree': JSON.stringify(tree),
-				'csrfmiddlewaretoken': '{{ csrf_token }}'},
+				'csrfmiddlewaretoken': '{{ csrf_token }}'
+				},
 			type: "post",
 		});
     });
-	$(function() {
-    $( "#tabs" ).tabs().addClass( "ui-tabs-vertical ui-helper-clearfix" );
-    $( "#tabs li" ).removeClass( "ui-corner-top" ).addClass( "ui-corner-left" );
-  });
+	$("#active_menu_button").click(function () {
+        var tree = $('.jstree[aria-expanded="true"]').jstree("get_json", -1);
+		$.ajax({
+			data: {
+				'active_menu': '',
+				'tree': JSON.stringify(tree),
+				'csrfmiddlewaretoken': '{{ csrf_token }}'
+				},
+			type: "post",
+		});
+    });
+	
   
   	for (var i=0; i<menus.length; i++){
 		var j = i + 1;

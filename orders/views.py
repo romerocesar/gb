@@ -169,12 +169,15 @@ def manager_menus(request, client_id):
         if request.is_ajax():
             if 'add_menu' in request.POST:
                 #TODO: make this add the new menu to the db
-                print request.POST
-            if 'save_menu' in request.POST:
+                dao.add_menu(request.POST['menu_title'], client_id)
+            elif 'save_menu' in request.POST:
                 #print jstree2mongo(request.POST)
                 menu = jstree2mongo2(request.POST)
                 dao.update_menu_title(menu['id'], menu['title'])
                 dao.update_menu_structure(menu['id'], menu['structure'])
+            elif 'active_menu' in request.POST:
+                menu_id = jstree2mongo2(request.POST)['id']
+                dao.update_active_menu(client_id, menu_id)
 
     else:
         #This case handles when request.method == GET
@@ -264,7 +267,7 @@ def mongo2jstree2(menu):
     P.S: This function can go to infinite depth'''
     tree = {'data': []}
     i = 0
-    tree['data'].append({'data': menu['title'], 'attr': {'id': menu['_id'], 'rel': 'root'}, 'state': 'open', 'children': []})
+    tree['data'].append({'data': menu['title'], 'attr': {'id': str(menu['_id']), 'rel': 'root'}, 'state': 'open', 'children': []})
     explo(menu, tree = tree)
     return simplejson.dumps(tree)
 

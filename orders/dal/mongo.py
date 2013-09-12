@@ -49,7 +49,12 @@ class OrdersDAO:
         menus_list = self.get_client_menus_list(client_id)
         menus = []
         for menu in menus_list:
-            menus.append(self.db.menus.find_one({'_id': menu}))
+            if len(menu) > 10:
+                #Mongo id
+                menus.append(self.db.menus.find_one({'_id': ObjectId(menu)}))
+            else:
+                #Bootstrapped id
+                menus.append(self.db.menus.find_one({'_id': menu}))
         return menus
     
     def get_item(self,item_id=1):
@@ -98,6 +103,10 @@ class OrdersDAO:
                               'name': name,
                               'price': price,
                               'description': description})
+
+    def add_menu(self, title, client_id):
+        menu_id = self.db.menus.insert({'title': title, 'structure': {}})
+        self.db.clients.update({'_id': client_id}, {'$addToSet': {'menus': str(menu_id)}})
 
     def del_item(self, item_id):
         if len(item_id) < 10:
@@ -224,11 +233,25 @@ class OrdersDAO:
 
     def update_menu_structure(self, menu_id, structure):
         'Updates de structure of the menu'
-        self.db.menus.update({'_id': menu_id}, {'$set': {'structure': structure}})
+        if len(menu_id) >10:
+            #Mongo id
+            self.db.menus.update({'_id': ObjectId(menu_id)}, {'$set': {'structure': structure}})
+        else:
+            #Bootstrapped id
+            self.db.menus.update({'_id': menu_id}, {'$set': {'structure': structure}})
 
     def update_menu_title(self, menu_id, title):
         'Updates de title of the menu'
-        self.db.menus.update({'_id': menu_id}, {'$set': {'title': title}})
+        if len(menu_id) > 10:
+            #Mongo id
+            self.db.menus.update({'_id': ObjectId(menu_id)}, {'$set': {'title': title}})
+        else:
+            #Bootstrapped id
+            self.db.menus.update({'_id': menu_id}, {'$set': {'title': title}})
+
+    def update_active_menu(self, client_id, menu_id):
+        'Sets the new active menu'
+        self.db.clients.update({'_id': client_id}, {'$set': {'menu': menu_id}})
 
 # Helper methods. The functions below are not part of the 'interface'
 # and need not be implemented by other OrdersDAO
