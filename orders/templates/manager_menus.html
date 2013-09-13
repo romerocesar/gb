@@ -23,7 +23,7 @@
     </div><!-- /.modal-dialog -->
   </div><!-- /.modal -->
   
-<div id="ttestt">
+<div id="tabs_container">
 <div id="tabs">
 	<ul>
 		{% for menu in menus %}
@@ -34,6 +34,7 @@
 		<div id="tabs-{{ forloop.counter }}">
 		</div>
 	{% endfor %}
+
 </div>
 </div>
 <input type="button" class="button" value="Save" id="save_menu_button" style="float:left;">
@@ -75,85 +76,5 @@
 			type: "post",
 		});
     });
-	
-  
-  	for (var i=0; i<menus.length; i++){
-		var j = i + 1;
-		$("#tabs-"+ j +"").jstree({
-		"json_data": menus[i],
-		"types": {
-
-			"valid_children" : ["root"],
-			"types": {
-				"root" : {
-					"valid_children": ["section", "subsection"],
-					"icon": {
-						"image": "http://static.jstree.com/v.1.0rc/_docs/_drive.png"
-					},
-					"start_drag" : false,
-                    "move_node" : false,
-                    "delete_node" : false,
-                    "remove" : false
-				},
-				"section": {
-					"valid_children" : ["section", "subsection"]
-				},
-				"subsection": {
-					"valid_children": ["item"]
-				},
-				"item": {
-					"valid_children": "none",
-					"icon": {
-						"image": "http://static.jstree.com/v.1.0rc/_demo/file.png"
-					},
-					"rename" : false
-				}
-			}
-		},
-		"themes": {
-			"theme": "apple"
-		},
-		"plugins" : [ "themes", "json_data", "ui", "dnd", "crrm", "contextmenu", "hotkeys", "unique", "types", "sort" ],
-		"contextmenu": {
-			"items": {
-				"ccp": false,
-				"create": false,
-				"rename": false,
-				"remove": false,
-				"Create": {
-					"label": "Create",
-					"separator_after": true,
-					"submenu": {
-						"Section": {
-							"label": "Section",
-							"action": function (obj) {
-								this.create(obj, "inside", {"data": "New Section", "state": "open", "attr":{"rel": "section"}}); 
-							}
-						},
-						"Sub": {
-							"label": "Sub-Section",
-							"action": function (obj) {
-								this.create(obj, "inside", {"data": "New Sub-Section", "state": "open", "attr":{"rel": "subsection"}}); 
-							}
-						}
-					}
-				},
-				"Insert": {
-					"label": "Insert Item",
-					"separator_after": true,
-					"action": function(obj){alert("Display all the items to select from them")} 
-				},
-				"Rename" : {
-					"label" : "Rename",
-					"action" : function (obj) { this.rename(obj); }
-				},
-				"Remove": {
-					"label": "Remove",
-					"action": function(obj) { this.remove(obj); }
-				}
-			}
-		}
-		});
-	};
 	
 </script>

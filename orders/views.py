@@ -168,17 +168,18 @@ def manager_menus(request, client_id):
     if request.method == 'POST':
         if request.is_ajax():
             if 'add_menu' in request.POST:
-                #TODO: make this add the new menu to the db
+                "Adds new menu to the db"
                 dao.add_menu(request.POST['menu_title'], client_id)
             elif 'save_menu' in request.POST:
+                "Saves the selected menu to the db"
                 #print jstree2mongo(request.POST)
                 menu = jstree2mongo2(request.POST)
                 dao.update_menu_title(menu['id'], menu['title'])
                 dao.update_menu_structure(menu['id'], menu['structure'])
             elif 'active_menu' in request.POST:
+                "Sets the selected menu as active"
                 menu_id = jstree2mongo2(request.POST)['id']
                 dao.update_active_menu(client_id, menu_id)
-
     else:
         #This case handles when request.method == GET
         #When the page is loaded the first time
