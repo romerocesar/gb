@@ -84,16 +84,19 @@ function treemaker(){
 	};
 };  
   
-$(document).ready(function() {
-
- 
-
-    $('#myTable').tablesorter({
+ function tablesorter() {
+	$('#myTable').tablesorter({
 		sortList: [[0,0], [1,0]],
 		headers: {
 			3: { sorter: false }
 		}
 	}).tableFilter();
+ };
+$(document).ready(function() {
+
+ 
+
+    tablesorter();
 	$('.delete_button').submit(function() {
 		$.ajax({
 			data: $(this).serialize(),
@@ -115,8 +118,7 @@ $(document).ready(function() {
 			type: $(this).attr('method'),
 			url: $(this).attr('action'),
 			success: function(response) {
-				$(this).find('.ajaxwrapper').html(response);
-				$('#myTable').append('<tr> <td>'+name+'</td> <td>'+price+'</td> <td>'+description+'</td> <td><button>delete</button></td> </tr>');
+				$('#table_div').load(' #myTable', function(){tablesorter()});
 			}
 		});
 		
@@ -130,8 +132,6 @@ $(document).ready(function() {
 				url: $(this).attr('action'),
 				success: function(response) {
 					$('#tabs_container').load(' #tabs', function(){tabsfunc(); treemaker();});
-
-					//$('#tabs').children('ul').append('<li class="ui-state-default ui-corner-left" role="tab" tabindex="-1" aria-controls="tabs-3" aria-labelledby="ui-id-3" aria-selected="false">'+title+'</li>');
 				}
 			});
 		return false;

@@ -127,7 +127,7 @@ def manager_items(request, client_id):
     #TODO: some refactoring,
     #      make the form validations work with the javascript part
     menu = dao.get_client_menu(client_id)
-    items = dao.get_client_items(client_id)
+    items = dao.get_client_items_w_id(client_id)
     if request.method == 'POST':
         if 'add_item' in request.POST:
             #This case handles de add items submit form
@@ -149,7 +149,7 @@ def manager_items(request, client_id):
             if request.is_ajax():
                 #Checks if the request is ajax
                 #IDK if this is necesary or even in the right order
-                dao.del_item(item_id)     
+                dao.del_item(client_id, item_id)     
     else:
         #This case handles when request.method == GET
         #When the page is loaded the first time

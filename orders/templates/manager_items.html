@@ -25,6 +25,7 @@
   </div><!-- /.modal -->
 
 <br>
+<div id="table_div">
 <table id="myTable" class="tablesorter">
 <thead>
 	<tr>
@@ -34,8 +35,8 @@
 		<th filter='false'>Options</th>
 	</tr>
 </thead>
+
 <tbody>
-{% load mongo_id %}
 {% for item in items %}
 	<tr class="menu_items">
 		<td>{{ item.name }}</td>
@@ -45,7 +46,7 @@
 		<form action="" method="post" class="delete_button">
 		<div class="ajaxwrapper">
 			{% csrf_token %}
-			<input type="hidden" name="delete_item_id" value={{ item|id }}>
+			<input type="hidden" name="delete_item_id" value={{ item.id }}>
 			<input type="submit" value="delete" name="delete_item" class="sendbutton">
 		</div>
 		</form>
@@ -53,5 +54,6 @@
 	</tr>
 {% endfor %}
 </tbody>
+</div>
 </table>
 
