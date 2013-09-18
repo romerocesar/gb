@@ -27,7 +27,7 @@
 <div id="tabs">
 	<ul>
 		{% for menu in menus %}
-			<li><a href="#tabs-{{ forloop.counter }}">{{ menu.title }}</a></li>
+			<li><a href="#tabs-{{ forloop.counter }}">{{ menu.title }}</a><p class="hidden">{{ menu.id }}</p></li>
 		{% endfor %}
 	</ul>
 	{% for menu in menus %}
@@ -41,18 +41,15 @@
 <input type="button" class="button" value="Set Active" id="active_menu_button" style="float:left;">
 
 
-<script type="text/javascript">var menus = new Array()</script>
-{% for menu in json_menus %}
-	<script type="text/javascript">
-		menus['{{ forloop.counter0 }}'] = $.parseJSON('{{ menu|safe }}');
-	</script>
-{% endfor %}
-
-
-
-
 <script type='text/javascript'>
 	var items = {{ items|safe }};
+	var jmenus = {{ json_menus|safe }};
+	var menus = new Array();
+	for (var i=0; i<jmenus.length; i++){
+		menus[i] = eval("(" + jmenus[i] + ')');
+	};
+
+	
 	
 	$("#save_menu_button").click(function () {
         var tree = $('.jstree[aria-expanded="true"]').jstree("get_json", -1);

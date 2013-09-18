@@ -92,9 +92,13 @@ function treemaker(){
 		}
 	}).tableFilter();
  };
-$(document).ready(function() {
-
  
+ function new_menu(){
+	var name = $('#tabs').children('ul').children('li:last-child').children('a').text();
+	var id = $('#tabs').children('ul').children('li:last-child').children('p').text();
+	menus.push(eval('({"data": [{"state": "open", "data": "' + name + '", "attr": {"id": "' + id + '", "rel": "root"}, "children": []}]})'));
+};
+$(document).ready(function() {
 
     tablesorter();
 	$('.delete_button').submit(function() {
@@ -131,7 +135,7 @@ $(document).ready(function() {
 				type: $(this).attr('method'),
 				url: $(this).attr('action'),
 				success: function(response) {
-					$('#tabs_container').load(' #tabs', function(){tabsfunc(); treemaker();});
+					$('#tabs_container').load(' #tabs', function(){tabsfunc(); new_menu(); treemaker(); });					
 				}
 			});
 		return false;

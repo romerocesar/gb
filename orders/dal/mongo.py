@@ -55,6 +55,7 @@ class OrdersDAO:
             else:
                 #Bootstrapped id
                 menus.append(self.db.menus.find_one({'_id': menu}))
+            menus[-1]['id'] = str(menus[-1]['_id'])
         return menus
     
     def get_item(self,item_id=1):
