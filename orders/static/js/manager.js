@@ -114,9 +114,6 @@ $(document).ready(function() {
 		return false;	
 	});
 	$('#add_item_form').submit(function() {
-		var name = $(this).find('#id_name').val()
-		var price = $(this).find('#id_price').val()
-		var description = $(this).find('#id_description').val()
 		$.ajax({
 			data: $(this).serialize() + "&add_item",
 			type: $(this).attr('method'),
@@ -138,6 +135,40 @@ $(document).ready(function() {
 					$('#tabs_container').load(' #tabs', function(){tabsfunc(); new_menu(); treemaker(); });					
 				}
 			});
+		return false;
+	});
+	$('#save_menu_form').submit(function() {
+		var tree = $('.jstree[aria-expanded="true"]').jstree("get_json", -1);
+		var token = $(this).serializeArray()[0];
+		$.ajax({
+			data: {
+				'csrfmiddlewaretoken': token.value,
+				'save_menu': '',
+				'tree': JSON.stringify(tree)
+				},
+			type: $(this).attr('method'),
+			url: $(this).attr('action'),
+			success: function(response) {
+				alert("This menu has been saved");
+			}
+		});
+		return false;
+	});
+	$('#active_menu_form').submit(function() {
+		var tree = $('.jstree[aria-expanded="true"]').jstree("get_json", -1);
+		var token = $(this).serializeArray()[0];
+		$.ajax({
+			data: {
+				'csrfmiddlewaretoken': token.value,
+				'active_menu': '',
+				'tree': JSON.stringify(tree)
+				},
+			type: $(this).attr('method'),
+			url: $(this).attr('action'),
+			success: function(response) {
+				alert("This menu has been set as the Active Menu");
+			}
+		});
 		return false;
 	});
 	

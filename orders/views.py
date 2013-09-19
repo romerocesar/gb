@@ -32,97 +32,7 @@ def section(request, menu_id, division, section):
     print('items ', items)
     return render(request, 'index.html',
                 {'template':'section.html', 'name':section, 'items':items})
-"""
-def managerview(request, client_id):
-    #TODO: some refactoring,
-    #      make the form validations work with the javascript part
-    menu = dao.get_client_menu(client_id)
-    items = dao.get_client_items(client_id)
-    if request.method == 'POST':
-        if 'add_section' in request.POST:
-            #This case handles the add section submit form
-            section_form = SectionForm(request.POST)
-            item_form = ItemForm()
-            iteminsert_form = ItemInsert(choices=items)
-            if section_form.is_valid():
-                #If the form is valid it enters here
-                cd = section_form.cleaned_data
-                name = cd['name']
-                has_subsections = cd['has_subsections']
-                inside = cd['inside']
-                dao.add_section(client_id, name, has_subsections, inside)
-        elif 'delete_section' in request.POST:
-            #This case handles the delete section submit form
-            section_form = SectionForm(request.POST)
-            item_form = ItemForm()
-            iteminsert_form = ItemInsert(choices=items)
-            if section_form.is_valid():
-                #If the form is valid it enters here
-                cd = section_form.cleaned_data
-                name = cd['name']
-                inside = cd['inside']
-                dao.del_section(client_id, name, inside)
-        elif 'add_item' in request.POST:
-            #This case handles de add items submit form
-            section_form = SectionForm()
-            item_form = ItemForm(request.POST)
-            iteminsert_form = ItemInsert(choices=items)
-            if item_form.is_valid():
-                #If the form is valid it enters here
-                cd = item_form.cleaned_data
-                name = cd['name']
-                price = cd['price']
-                description = cd['description']
-                if request.is_ajax():
-                    #Checks if the request is ajax after the validation of the form
-                    #Even though the javascript part is running without validation...
-                    dao.add_item(client_id, name, price, description)
-        elif 'delete_item_id' in request.POST:
-            #This case handles de delete item submit form
-            section_form = SectionForm()
-            item_form = ItemForm()
-            iteminsert_form = ItemInsert(choices=items)
-            item_id = request.POST['delete_item_id']
-            if request.is_ajax():
-                #Checks if the request is ajax
-                #IDK if this is necesary or even in the right order
-                dao.del_item(item_id)
-        elif 'insertitem' in request.POST:
-            #This case handles de insert item submit form
-            section_form = SectionForm()
-            item_form = ItemForm()
-            iteminsert_form = ItemInsert(request.POST, choices=items)
-            if iteminsert_form.is_valid():
-                #If the form is valid it enters here
-                cd = iteminsert_form.cleaned_data
-                insert = cd['insert']
-                inside = cd['inside']
-                dao.insert_item(client_id, insert, inside)
-        elif 'remove_from' in request.POST:
-            #This case handles de remove item submit form
-            section_form = SectionForm()
-            item_form = ItemForm()
-            iteminsert_form = ItemInsert(request.POST, choices=items)
-            if iteminsert_form.is_valid():
-                #If the form is valid it enters here
-                cd = iteminsert_form.cleaned_data
-                insert = cd['insert']
-                inside = cd['inside']
-                dao.remove_item(client_id, insert, inside)
-    else:
-        #This case handles when request.method == GET
-        #When the page is loaded the first time
-        section_form = SectionForm()
-        item_form = ItemForm()
-        iteminsert_form = ItemInsert(choices=items)
-    return render(request, 'desktop_index.html',
-                  {'menu': menu, 'items': items,
-                   'section_form': section_form,
-                   'item_form': item_form,
-                   'iteminsert': iteminsert_form,
-                   'template': 'manager.html',
-                   'title': 'Manager'})
-"""
+
 def manager_items(request, client_id):
     #TODO: some refactoring,
     #      make the form validations work with the javascript part
@@ -172,13 +82,12 @@ def manager_menus(request, client_id):
                 dao.add_menu(request.POST['menu_title'], client_id)
             elif 'save_menu' in request.POST:
                 "Saves the selected menu to the db"
-                #print jstree2mongo(request.POST)
-                menu = jstree2mongo2(request.POST)
+                menu = jstree2mongo(request.POST)
                 dao.update_menu_title(menu['id'], menu['title'])
                 dao.update_menu_structure(menu['id'], menu['structure'])
             elif 'active_menu' in request.POST:
                 "Sets the selected menu as active"
-                menu_id = jstree2mongo2(request.POST)['id']
+                menu_id = jstree2mongo(request.POST)['id']
                 dao.update_active_menu(client_id, menu_id)
     else:
         #This case handles when request.method == GET
@@ -246,24 +155,6 @@ def update_order(request, order_id):
 
 def mongo2jstree(menu):
     '''Changes the structure of the menu that uses mongo
-    to a way jstree can read it'''
-    #TODO: maybe use some recursion so the tree doesnt have a fixed depth <-- Done below
-    tree = {'data': []}
-    i = 0
-    tree['data'].append({'data': menu['title'], 'attr': {'id': menu['_id'], 'rel': 'root'}, 'state': 'open', 'children': []})
-    for section in menu['structure']:
-        tree['data'][0]['children'].append({'data': section, 'attr': {'rel': 'section'},'state': 'open','children':[]})
-        j = 0
-        for subsection in menu['structure'][section]:
-            tree['data'][0]['children'][i]['children'].append({'data': subsection, 'attr': {'rel': 'subsection'}, 'state': 'open','children':[]})
-            for item in menu['structure'][section][subsection]:
-                tree['data'][0]['children'][i]['children'][j]['children'].append({'data': dao.get_item(item)['name'], 'attr': {'id': item, 'rel': 'item'}})
-            j += 1
-        i += 1
-    return simplejson.dumps(tree)
-
-def mongo2jstree2(menu):
-    '''Changes the structure of the menu that uses mongo
     to a way jstree can read it
     P.S: This function can go to infinite depth'''
     tree = {'data': []}
@@ -308,27 +199,10 @@ def mongo2jstree_list(menus):
     '''handles multiple menus with the function above'''
     js_menus = []
     for menu in menus:
-        js_menus.append(mongo2jstree2(menu))
+        js_menus.append(mongo2jstree(menu))
     return js_menus                  
-
-def jstree2mongo(tree):
-    '''Changes the structure of the menu that uses jstree
-    to the origal way that mongo uses'''
-    #TODO: maybe use some recursion so it doesnt read the tree to a fixed depth <-- Done below
-    #Waiting for cesar's approval to delete this function and keep the new one below :)
-    body = simplejson.loads(tree['tree'])
-    structure = {}
-    for section in body[0]['children']:
-        structure[section['data']] = {}
-        if 'children' in section:
-            for subsection in section['children']:
-                structure[section['data']][subsection['data']] = []
-                if 'children' in subsection:
-                    for item in subsection['children']:
-                        structure[section['data']][subsection['data']].append(item['attr']['id'])
-    return {unicode('structure'): structure, unicode('title'): body[0]['data'], unicode('id'): body[0]['attr']['id']}
     
-def jstree2mongo2(tree):
+def jstree2mongo(tree):
     '''Changes the structure of the menu that uses jstree
     to the original way that mongo uses.
     P.S: This function can go to infinite depth'''

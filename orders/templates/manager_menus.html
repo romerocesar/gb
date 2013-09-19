@@ -37,9 +37,15 @@
 
 </div>
 </div>
-<input type="button" class="button" value="Save" id="save_menu_button" style="float:left;">
-<input type="button" class="button" value="Set Active" id="active_menu_button" style="float:left;">
 
+<form action="" method="post" id="save_menu_form" style="float:left;">
+	{% csrf_token %}
+	<input type="submit" value="Save" name="save_menu" >
+</form>
+<form action="" method="post" id="active_menu_form" style="float:left;">
+	{% csrf_token %}
+	<input type="submit" value="Set Active" name="active_menu" >
+</form>
 
 <script type='text/javascript'>
 	var items = {{ items|safe }};
@@ -48,32 +54,4 @@
 	for (var i=0; i<jmenus.length; i++){
 		menus[i] = eval("(" + jmenus[i] + ')');
 	};
-
-	
-	
-	$("#save_menu_button").click(function () {
-        var tree = $('.jstree[aria-expanded="true"]').jstree("get_json", -1);
-		$.ajax({
-			data: {
-				'save_menu': '',
-				'tree': JSON.stringify(tree),
-				'csrfmiddlewaretoken': '{{ csrf_token }}'
-				},
-			type: "post",
-		});
-		alert("This menu has been saved");
-    });
-	$("#active_menu_button").click(function () {
-        var tree = $('.jstree[aria-expanded="true"]').jstree("get_json", -1);
-		$.ajax({
-			data: {
-				'active_menu': '',
-				'tree': JSON.stringify(tree),
-				'csrfmiddlewaretoken': '{{ csrf_token }}'
-				},
-			type: "post",
-		});
-		alert("This menu has been set as the Active Menu");
-    });
-	
 </script>
