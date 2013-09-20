@@ -60,7 +60,12 @@ class OrdersDAO:
     
     def get_item(self,item_id=1):
         '''get the specified item from the DB'''
-        item = self.db.items.find_one({'_id':item_id})
+        if len(item_id) > 10:
+            #Mongo id
+            item = self.db.items.find_one({'_id':ObjectId(item_id)})
+        else:
+            #Bootstrapped id
+            item = self.db.items.find_one({'_id':item_id})
         return item
 
     def get_items(self,ids):

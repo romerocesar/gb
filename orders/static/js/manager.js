@@ -50,6 +50,8 @@ function treemaker(){
 				"Create": {
 					"label": "Create",
 					"separator_after": true,
+					//jitems = {},
+					//for(var i=0;i<items.length;i++){this["item_"+i] = {"label": items[i].name, "action": function (obj){this.create(obj, "inside", {"data": items[i].name, "attr":{"rel": "item", "id": items[i].id}}, false, true);}}; jitems["item_"+i]= this["item_"+i];};
 					"submenu": {
 						"Section": {
 							"label": "Section",
@@ -68,7 +70,21 @@ function treemaker(){
 				"Insert": {
 					"label": "Insert Item",
 					"separator_after": true,
-					"action": function(obj){alert("Display all the items to select from them")} 
+					"submenu": {
+						"item-0":{
+							"label": items[0].name,
+							"action": function (obj) {
+								this.create(obj, "inside", {"data": items[0].name, "attr":{"rel": "item", "id": items[0].id}}, false, true);
+							}
+						},
+						"item-1":{
+							"label": items[4].name,
+							"action": function (obj) {
+								this.create(obj, "inside", {"data": items[4].name, "attr":{"rel": "item", "id": items[4].id}}, false, true);
+							}
+						},
+					}
+					//"action": function(obj){alert("Display all the items to select from them")} 
 				},
 				"Rename" : {
 					"label" : "Rename",
