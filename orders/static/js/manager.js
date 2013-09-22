@@ -50,8 +50,6 @@ function treemaker(){
 				"Create": {
 					"label": "Create",
 					"separator_after": true,
-					//jitems = {},
-					//for(var i=0;i<items.length;i++){this["item_"+i] = {"label": items[i].name, "action": function (obj){this.create(obj, "inside", {"data": items[i].name, "attr":{"rel": "item", "id": items[i].id}}, false, true);}}; jitems["item_"+i]= this["item_"+i];};
 					"submenu": {
 						"Section": {
 							"label": "Section",
@@ -70,20 +68,7 @@ function treemaker(){
 				"Insert": {
 					"label": "Insert Item",
 					"separator_after": true,
-					"submenu": {
-						"item-0":{
-							"label": items[0].name,
-							"action": function (obj) {
-								this.create(obj, "inside", {"data": items[0].name, "attr":{"rel": "item", "id": items[0].id}}, false, true);
-							}
-						},
-						"item-1":{
-							"label": items[4].name,
-							"action": function (obj) {
-								this.create(obj, "inside", {"data": items[4].name, "attr":{"rel": "item", "id": items[4].id}}, false, true);
-							}
-						},
-					}
+					"action": function(obj) {$('#insert_item_modal_button').click()}
 					//"action": function(obj){alert("Display all the items to select from them")} 
 				},
 				"Rename" : {
@@ -100,13 +85,22 @@ function treemaker(){
 	};
 };  
   
- function tablesorter() {
+ function tabledisplay() {
 	$('#myTable').tablesorter({
 		sortList: [[0,0], [1,0]],
 		headers: {
 			3: { sorter: false }
 		}
 	}).tableFilter();
+ };
+ 
+ function item_insert_table() {
+	$('#insert_item_table').tablesorter({
+		sortList: [[0,0]]
+	}).tableFilter();
+	$('#selectable').selectable({
+		filter: "td"
+	});
  };
  
  function new_menu(){
@@ -116,7 +110,7 @@ function treemaker(){
 };
 $(document).ready(function() {
 
-    tablesorter();
+    tabledisplay();
 	$('.delete_button').submit(function() {
 		$.ajax({
 			data: $(this).serialize(),
@@ -129,13 +123,37 @@ $(document).ready(function() {
 		$(this).closest('.menu_items').hide();
 		return false;	
 	});
+	$('.save_edit_button').submit(function() {
+		var name = $(this).parent().siblings().eq(0).text();
+		var price = $(this).parent().siblings().eq(1).text();
+		var description = $(this).parent().siblings().eq(2).text();
+		var token = $(this).serializeArray()[0];
+		var item_id = $(this).serializeArray()[1];
+		$.ajax({
+			data: {
+				'csrfmiddlewaretoken': token.value,
+				'item_id': item_id.value,
+				'name': name,
+				'price': price,
+				'description': description,
+				'save_edit': ''
+			},
+			type: $(this).attr('method'),
+			url: $(this).attr('action'),
+			success: function(response) {
+				$('#myTable').tablesorter();
+				$('#myTable').tablesorter();
+			}
+		});
+		return false;
+	});
 	$('#add_item_form').submit(function() {
 		$.ajax({
 			data: $(this).serialize() + "&add_item",
 			type: $(this).attr('method'),
 			url: $(this).attr('action'),
 			success: function(response) {
-				$('#table_div').load(' #myTable', function(){tablesorter()});
+				$('#table_div').load(' #myTable', function(){tabledisplay()});
 			}
 		});
 		
@@ -187,6 +205,12 @@ $(document).ready(function() {
 		});
 		return false;
 	});
+	$('#insert_item_button').click(function() {
+		$('.ui-selected').each(function(){
+			$('.jstree[aria-expanded="true"]').jstree("create", null, "inside", {"data": $(this).children('span').text(), "attr": {"rel": "item", "id": $(this).children('p').text()}}, false, true);
+		});
+		//$('.jstree[aria-expanded="true"]').jstree("create", null, "inside", {"data": "item", "attr": {"rel": "item", "id": "123"}}, false, true);
+	});
 	
 	
 	var parts = location.pathname.split("/");
@@ -196,4 +220,5 @@ $(document).ready(function() {
 		
 tabsfunc();
 treemaker();
+item_insert_table()
 });

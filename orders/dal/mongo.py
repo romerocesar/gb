@@ -148,56 +148,6 @@ class OrdersDAO:
             self.update_menu_structure(menu['_id'], menu_structure)
         
 
-    def add_section(self, client_id, name, has_subsections, inside):
-        '''adds a new section to the active menu of the client
-        name(string) = name of the section to insert,
-        has_subsection(boolean) = True if its going to have subsections inside,
-                                  False if its going to have items inside,
-        inside(string) = where inside the menu structure is going to add the section'''
-        #TODO: make it work with any chosen menu, not only the active menu,
-        #   find a generic way to set the 'path' of the item to be inserted
-        menu_id = self.get_menu_id(client_id)
-        if has_subsections:
-            if inside:
-                self.db.menus.update({'_id': menu_id}, {'$set': { "structure." + str(inside) + "." + str(name) : {} }})
-            else:
-                self.db.menus.update({'_id': menu_id}, {'$set': { "structure." + str(name) : {} }})
-        else:
-            if inside:
-                self.db.menus.update({'_id': menu_id}, {'$set': { "structure." + str(inside) + "." + str(name) : [] }})
-            else:
-                self.db.menus.update({'_id': menu_id}, {'$set': { "structure." + str(name) : [] }})
-
-    def del_section(self, client_id, name, inside):
-        '''deletes a section from the menu structure
-        name(string) = name of the section to be deleted,
-        inside(string) = path of the section to be deleted'''
-        #TODO: make it work with any chosen menu, not only the active menu,
-        #   find a generic way to set the 'path' of the item to be inserted
-        menu_id = self.get_menu_id(client_id)
-        if inside:
-            self.db.menus.update({'_id': menu_id}, {'$unset': { "structure." + str(inside) + "." + str(name): [] }})
-        else:
-            self.db.menus.update({'_id': menu_id}, {'$unset': { "structure." + str(name): [] }})
-
-    def insert_item(self, client_id, item_id, section):
-        '''puts a item inside a section in the menu structure
-        item_id(string) = id of the item to be inserted
-        section(string) = path of the section where the item is going to be inserted'''
-        #TODO: make it work with any chosen menu, not only the active menu,
-        #   find a generic way to set the 'path' of the item to be inserted
-        menu_id = self.get_menu_id(client_id)
-        self.db.menus.update({'_id': menu_id}, {'$addToSet': { "structure." + str(section) : item_id}})
-
-    def remove_item(self, client_id, item_id, section):
-        '''pulls a item from a section
-        item_id(string) = id of the item to be pulled
-        section(string) = path of the section where the item is going to be pulled from'''
-        #TODO: make it work with any chosen menu, not only the active menu,
-        #   find a generic way to set the 'path' of the item to be inserted
-        menu_id = self.get_menu_id(client_id)
-        self.db.menus.update({'_id': menu_id}, {'$pull': { "structure." + str(section): item_id}})
-
     def add_order(self, client_id, item_id, quantity):
         # TODO: orders will need to have a seat_id and an array of
         # events. Each event will have a server_id, a timestamp and an
@@ -284,6 +234,15 @@ class OrdersDAO:
     def update_active_menu(self, client_id, menu_id):
         'Sets the new active menu'
         self.db.clients.update({'_id': client_id}, {'$set': {'menu': menu_id}})
+
+    def update_item(self, item_id, name, price, description):
+        'Updates the item properties'
+        if len(item_id) > 10:
+            #Mongo id
+            self.db.items.update({'_id': ObjectId(item_id)}, {'$set': {'name': name, 'price': price, 'description': description}})
+        else:
+            #Bootstrapped id
+            self.db.items.update({'_id': item_id}, {'$set': {'name': name, 'price': price, 'description': description}})
 
 # Helper methods. The functions below are not part of the 'interface'
 # and need not be implemented by other OrdersDAO

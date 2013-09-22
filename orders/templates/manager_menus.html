@@ -22,6 +22,37 @@
       </div><!-- /.modal-content -->
     </div><!-- /.modal-dialog -->
   </div><!-- /.modal -->
+ 
+<!-- Button trigger modal -->
+  <a data-toggle="modal" href="#insert_item_modal" class="hidden" id="insert_item_modal_button">Insert item</a>
+ 
+  <div class="modal fade" id="insert_item_modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+          <h4 class="modal-title">Insert Item:</h4>
+        </div>
+        <div class="modal-body">
+			<table id="insert_item_table" class="tablesorter">
+				<thead>
+					<tr>
+						<th>Name</th>
+					</tr>
+				</thead>
+				<tbody id="selectable">
+					{% for item in items %}
+						<tr class="menu_items ui-widget-content">
+							<td class="ui-widget-content"><span>{{ item.name }}</span><p class="hidden">{{ item.id }}</p></td>
+						</tr>
+					{% endfor %}
+				</tbody>
+			</table>
+			<button type="button" id="insert_item_button" class="btn btn-primary">Insert</button>
+        </div>
+      </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+  </div><!-- /.modal -->
   
 <div id="tabs_container">
 <div id="tabs">
@@ -40,18 +71,20 @@
 
 <form action="" method="post" id="save_menu_form" style="float:left;">
 	{% csrf_token %}
-	<input type="submit" value="Save" name="save_menu" >
+	<input type="submit" value="Save" name="save_menu" class="btn btn-primary">
 </form>
 <form action="" method="post" id="active_menu_form" style="float:left;">
 	{% csrf_token %}
-	<input type="submit" value="Set Active" name="active_menu" >
+	<input type="submit" value="Set Active" name="active_menu" class="btn btn-primary">
 </form>
 
 <script type='text/javascript'>
-	var items = {{ items|safe }};
+
 	var jmenus = {{ json_menus|safe }};
 	var menus = new Array();
+	var a = 0;
 	for (var i=0; i<jmenus.length; i++){
 		menus[i] = eval("(" + jmenus[i] + ')');
 	};
+
 </script>

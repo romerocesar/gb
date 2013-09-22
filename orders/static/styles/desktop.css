@@ -2,6 +2,11 @@ body {
   padding-top: 70px;
 }
 
+#site {
+	width: 1000px;
+	margin: 0px auto;
+}
+
 table.tablesorter {
 	font-family:arial;
 	background-color: #CDCDCD;
@@ -46,3 +51,8 @@ background-color: #8dbdd8;
 .ui-tabs-vertical .ui-tabs-nav li a { display:block; }
 .ui-tabs-vertical .ui-tabs-nav li.ui-tabs-active { padding-bottom: 0; padding-right: .1em; border-right-width: 1px; border-right-width: 1px; }
 .ui-tabs-vertical .ui-tabs-panel { padding: 1em; float: right; width: 40em;}
+
+#selectable .ui-selecting { background: #FECA40; }
+#selectable .ui-selected { background: #F39814; color: white; }
+#selectable { list-style-type: none; margin: 0; padding: 0; width: 60%; }
+#selectable tr { margin: 3px; padding: 0.4em; font-size: 1.4em; height: 18px; }

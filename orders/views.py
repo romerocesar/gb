@@ -38,32 +38,33 @@ def manager_items(request, client_id):
     #      make the form validations work with the javascript part
     menu = dao.get_client_menu(client_id)
     items = dao.get_client_items_w_id(client_id)
+    item_form = ItemForm()
     if request.method == 'POST':
-        if 'add_item' in request.POST:
-            #This case handles de add items submit form
-            item_form = ItemForm(request.POST)
-            if item_form.is_valid():
-                #If the form is valid it enters here
-                cd = item_form.cleaned_data
-                name = cd['name']
-                price = cd['price']
-                description = cd['description']
-                if request.is_ajax():
-                    #Checks if the request is ajax after the validation of the form
-                    #Even though the javascript part is running without validation...
+        if request.is_ajax():
+            if 'add_item' in request.POST:
+                #This case handles de add items submit form
+                item_form = ItemForm(request.POST)
+                if item_form.is_valid():
+                    #If the form is valid it enters here
+                    cd = item_form.cleaned_data
+                    name = cd['name']
+                    price = cd['price']
+                    description = cd['description']
                     dao.add_item(client_id, name, price, description)
-        elif 'delete_item_id' in request.POST:
-            #This case handles de delete item submit form
-            item_form = ItemForm()
-            item_id = request.POST['delete_item_id']
-            if request.is_ajax():
-                #Checks if the request is ajax
-                #IDK if this is necesary or even in the right order
-                dao.del_item(client_id, item_id)     
+            elif 'delete_item_id' in request.POST:
+                #This case handles de delete item submit form
+                item_id = request.POST['delete_item_id']
+                dao.del_item(client_id, item_id)
+            elif 'save_edit' in request.POST:
+                item_id = request.POST['item_id']
+                name = request.POST['name']
+                price = float(request.POST['price'])
+                description = request.POST['description']
+                dao.update_item(item_id, name, price, description)
     else:
         #This case handles when request.method == GET
         #When the page is loaded the first time
-        item_form = ItemForm()
+        pass
     return render(request, 'desktop_index.html',
                   {'items': items,
                    'item_form': item_form,
@@ -94,7 +95,7 @@ def manager_menus(request, client_id):
         #When the page is loaded the first time
         pass  
     return render(request, 'desktop_index.html',
-                  {'menus': menus, 'items': simplejson.dumps(items),
+                  {'menus': menus, 'items': items,
                    'json_menus': mongo2jstree_list(menus),
                    'template': 'manager_menus.html',
                    'title': 'Manager'})

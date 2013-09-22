@@ -3,10 +3,11 @@
   <head>
     <title>{{ title }}</title>
     {% load staticfiles %}
-    <link rel="stylesheet" href="http://code.jquery.com/ui/1.10.3/themes/smoothness/jquery-ui.css" />
+    
     <link rel="stylesheet" type="text/css" href="{% static 'styles/desktop.css' %}" />
 	<link rel="stylesheet" type="text/css" href="{% static 'js/themes/apple/style.css' %}" />
 	<link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css" />
+	<link rel="stylesheet" href="http://code.jquery.com/ui/1.10.3/themes/smoothness/jquery-ui.css" />
   </head>
   <body>
 		<nav class="navbar navbar-default navbar-fixed-top" role="navigation">
@@ -30,8 +31,10 @@
 				<p class="navbar-text pull-right">Waitless Services</p>  
 			</div><!-- /.navbar-collapse -->
 		</nav>
-    {% include template %}	
-	
+		
+	<div id="site">
+		{% include template %}	
+	</div>
 	
 	<script src="http://code.jquery.com/jquery-1.9.1.js"></script>
 	<script src="http://code.jquery.com/ui/1.10.3/jquery-ui.js"></script>
