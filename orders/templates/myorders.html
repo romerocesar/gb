@@ -1,0 +1,20 @@
+<div data-role="page">
+  <div data-role="header">
+    {% include 'menubtn.html' %}
+    <p>Orders at {{client_name}}</p>
+  </div>
+  <div data-role="content">
+    <ul data-role="listview" data-divider-theme="d">
+      {% for order in orders %}
+      <li><a href="{% url 'order_details' order.id %}">{{order.quantity}} {{order.item_name}} 
+          <span class="delay">{{order.delay}}</span>
+        </a>
+      </li>
+      {% endfor %}
+    </ul>
+  </div>
+  <div data-role="footer">
+      <a href="{% url 'mybill' %}" data-role="button" data-inline="false">
+    Request Bill</a>
+  </div>
+</div>

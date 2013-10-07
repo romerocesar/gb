@@ -8,6 +8,10 @@ from orders.forms import SectionForm, ItemForm, ItemInsert
 
 logger = logging.getLogger('orders.views')
 
+# TODO: perhaps we should have a centralized call to render so it
+# includes the parent template as well as commons variables such as
+# client_name.
+
 def menu(request, client_id, seat_id):
     try:
         menu = dao.get_client_menu(client_id)
@@ -158,18 +162,43 @@ def place_order(request, item_id, client_id):
     logger.info('item_id:%s, client_id:%s, quantity:%s', item_id, client_id, quantity)
     dao.add_order(item_id, quantity, client_id, seat_id)
     item_name = dao.get_item(item_id)['name']
+    message = '{} {} coming!. Seat back and relax.'.format(quantity, item_name)
     return render(request, 'index.html',
-                  {'template':'confirmation.html', 'client':client_id, 'qty':quantity, 
-                   'item_name':item_name})
+                  {'template':'confirmation.html', 'message':message})
 
 def myorders(request):
     ''' Lists orders placed from this session as indicated by the
     session's seat_id and client_it. It will display orders that are
     in placed, prepared or served status.'''
+    client_id = request.session['client_id']
+    client_name = dao.get_client_name(client_id)
+    orders = customer_orders(request)
+    return render(request, 'index.html', 
+                  {'template':'myorders.html', 'client_name': client_name,
+                   'orders': orders})
+
+def customer_orders(request, statii = (dao.ORDER_PLACED, dao.ORDER_PREPARED, dao.ORDER_SERVED, dao.BILL_REQUESTED)):
+    '''Helper function that returns a list of customer orders by
+    extracting the seat and location id from the session in the input
+    request. It defaults to orders in one of the following statii:
+    dao.ORDER_PLACED, dao.ORDER_PREPARED, dao.ORDER_SERVED,
+    dao.BILL_REQUESTED. The caller can use the optional param statii
+    to get a different set.'''
     seat_id = request.session['seat_id']
     client_id = request.session['client_id']
-    statii = (dao.ORDER_PLACED, dao.ORDER_PREPARED, dao.ORDER_SERVED)
-    return list_orders(request, client_id, query={'seat_id':seat_id, 'status':statii})
+    logger.info({'seat':seat_id, 'client':client_id})
+    orders = dao.list_orders(client_id, query={'seat_id':seat_id, 'status':statii})
+    return orders
+
+def bill(request):
+    '''requests the bill by updating the status of all active orders
+    from this session to dao.BILL_REQUESTED'''
+    message = 'bill coming!'
+    orders = customer_orders(request)
+    ids = [order['id'] for order in orders]
+    dao.update_orders(ids, status=dao.BILL_REQUESTED)
+    return render(request, 'index.html',
+                  {'template':'confirmation.html', 'message':message})
 
 def list_orders(request, client_id, query={}):
     '''Lists orders in the specified client's queue. It defaults to

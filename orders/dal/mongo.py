@@ -25,12 +25,6 @@ class MongoOrdersDAO(OrdersDAO):
             self.db.clients.remove()
             self.db.clients.insert(clients)
 
-    def get_client_menu(self, client_id='c0'):
-        '''Gets the active menu for the specified client ID.'''
-        mid = self.db.clients.find_one(client_id)['menu']
-        menu = self.db.menus.find_one(mid)
-        return menu
-
     def get_menu(self, menu_id='m0'):
         '''Gets the menu that matches the specified menu ID'''
         return self.db.menus.find_one(menu_id)
@@ -59,15 +53,35 @@ class MongoOrdersDAO(OrdersDAO):
         '''gets the id of the active menu of the client'''
         return self.db.clients.find_one({'_id': client_id})['menu']
 
+    def get_client(self, client_id):
+        '''Simply return the client that matches the specified id'''
+        # TODO: should log an error if client id doens't exist.
+        return self.db.clients.find_one(client_id)
+
+    def get_client_id(self, order_id):
+        'Return the client id the specified order belongs to'
+        # TODO: what if order_id does not exist or it doesn't contain a client id?
+        cid = self.db.orders.find_one(ObjectId(order_id))['client_id']
+        return cid
+
+    def get_client_items(self, client_id):
+        items = list(self.db.items.find({'client_id': client_id}))
+        return items
+
     def get_client_menu(self, client_id):
         'Gets the active menu of the given client'
         menu_id = self.get_menu_id(client_id)
         menu = self.db.menus.find_one({'_id': menu_id})
         return menu
 
-    def get_client_items(self, client_id):
-        items = list(self.db.items.find({'client_id': client_id}))
-        return items
+    def get_client_menu(self, client_id='c0'):
+        '''Gets the active menu for the specified client ID.'''
+        mid = self.db.clients.find_one(client_id)['menu']
+        menu = self.db.menus.find_one(mid)
+        return menu
+
+    def get_client_name(self, client_id):
+        return self.db.clients.find_one(client_id)['name']
 
     def add_item(self, client_id, name, price, description):
         self.db.items.insert({'client_id': client_id,
@@ -146,13 +160,15 @@ class MongoOrdersDAO(OrdersDAO):
         '''Lists orders for the specified client matched by the given
         query. If query is not given, all orders in _placed_ status
         for the given client will be returned'''
-        logger.info('client_id: %s, query: %s', client_id, query)
+        logger.debug('client_id: %s, query: %s', client_id, query)
         # TODO: move all field names to variables so this won't have
         # to change so dramatically whenever there's a schema change
         query['client_id'] = client_id
         if 'status' in query and type(query['status']) in (tuple, list):
             query['status'] = {'$in':query['status']}
+        logger.debug('querying mongo with',query)
         orders = self.db.orders.find(query)
+        logger.debug('mongo returned orders',orders)
         res = []
         names = {}
         for order in orders:
@@ -174,16 +190,6 @@ class MongoOrdersDAO(OrdersDAO):
         logger.info('name: %s', ans)
         return ans
 
-    def get_client(self, client_id):
-        '''Simply return the client that matches the specified id'''
-        return self.db.clients.find_one(client_id)
-
-    def get_client_id(self, order_id):
-        'Return the client id the specified order belongs to'
-        # TODO: what if order_id does not exist or it doesn't contain a client id?
-        cid = self.db.orders.find_one(ObjectId(order_id))['client_id']
-        return cid
-
     def get_order(self, order_id): 
         '''Returns the order object that matches the given id. Adds
         the name of the item in the order as well as its delay as
@@ -199,6 +205,15 @@ class MongoOrdersDAO(OrdersDAO):
         'Updates the status of the specified order. Returns the new status of the order.'
         res = self.db.orders.find_and_modify({'_id':ObjectId(order_id)},{'$set':{'status':status}}, new=True)
         return res['status']
+
+    def update_orders(self, ids, **attributes):
+        '''Updates multiple orders by updating their attributes as specified in the input dictionary.
+        Returns the IDs of the orders that failed to be updated if any.'''
+        logger.debug({'ids':ids,'attrs':attributes})
+        oids = [ObjectId(i) for i in ids]
+        res = self.db.orders.update({'_id':{'$in':oids}},{'$set':attributes}, multi=True)
+        logger.info('updated {} orders. Errors: {}.'.format(res['n'], res['err']))
+        return res
 
     def is_valid_seat(self, client_id, seat_id): 
         '''Returns whether the given seat id belongs the the given
