@@ -7,6 +7,10 @@ body {
 	margin: 0px auto;
 }
 
+.floaty {
+	float: left;
+}
+
 table.tablesorter {
 	font-family:arial;
 	background-color: #CDCDCD;

@@ -39,18 +39,18 @@
 <tbody>
 {% for item in items %}
 	<tr class="menu_items ui-widget-content">
-		<td contentEditable>{{ item.name }}</td>
-		<td contentEditable>{{ item.price }}</td>
-		<td contentEditable>{{ item.description}}</td>
+		<td contentEditable class="item_name">{{ item.name }}</td>
+		<td contentEditable class="item_price">{{ item.price }}</td>
+		<td contentEditable class="item_description">{{ item.description}}</td>
 		<td>
-		<form action="" method="post" class="delete_button" style="float:left;">
+		<form action="" method="post" class="delete_button floaty">
 		<div class="ajaxwrapper">
 			{% csrf_token %}
 			<input type="hidden" name="delete_item_id" value={{ item.id }}>
 			<input type="submit" value="Delete" name="delete_item" class="sendbutton">
 		</div>
 		</form>
-		<form action="" method="post" class="save_edit_button" style="float:left;">
+		<form action="" method="post" class="save_edit_button floaty">
 			{% csrf_token %}
 			<input type="hidden" name="item_id" value={{ item.id }}>
 			<input type="submit" value="Save" name="save_edit">

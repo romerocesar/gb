@@ -145,7 +145,7 @@ class OrdersDAO:
             if last in menu_structure:
                 menu_structure = menu_structure.replace(last, '[]')
             menu_structure = eval(menu_structure)
-            self.update_menu_structure(menu['_id'], menu_structure)
+            self.update_menu_structure(str(menu['_id']), menu_structure)
         
 
     def add_order(self, client_id, item_id, quantity):
@@ -235,7 +235,7 @@ class OrdersDAO:
         'Sets the new active menu'
         self.db.clients.update({'_id': client_id}, {'$set': {'menu': menu_id}})
 
-    def update_item(self, item_id, name, price, description):
+    def update_item(self, item_id, name = 'name', price = 'price', description = 'description'):
         'Updates the item properties'
         if len(item_id) > 10:
             #Mongo id

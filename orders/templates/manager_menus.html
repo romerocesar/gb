@@ -69,11 +69,11 @@
 </div>
 </div>
 
-<form action="" method="post" id="save_menu_form" style="float:left;">
+<form action="" method="post" id="save_menu_form" class="floaty">
 	{% csrf_token %}
 	<input type="submit" value="Save" name="save_menu" class="btn btn-primary">
 </form>
-<form action="" method="post" id="active_menu_form" style="float:left;">
+<form action="" method="post" id="active_menu_form" class="floaty">
 	{% csrf_token %}
 	<input type="submit" value="Set Active" name="active_menu" class="btn btn-primary">
 </form>

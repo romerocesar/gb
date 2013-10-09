@@ -42,7 +42,7 @@ def manager_items(request, client_id):
     if request.method == 'POST':
         if request.is_ajax():
             if 'add_item' in request.POST:
-                #This case handles de add items submit form
+                #This case handles the add items submit form
                 item_form = ItemForm(request.POST)
                 if item_form.is_valid():
                     #If the form is valid it enters here
@@ -52,19 +52,17 @@ def manager_items(request, client_id):
                     description = cd['description']
                     dao.add_item(client_id, name, price, description)
             elif 'delete_item_id' in request.POST:
-                #This case handles de delete item submit form
+                #This case handles the delete item submit form
                 item_id = request.POST['delete_item_id']
                 dao.del_item(client_id, item_id)
             elif 'save_edit' in request.POST:
+                #This case handles the updated items
                 item_id = request.POST['item_id']
                 name = request.POST['name']
                 price = float(request.POST['price'])
                 description = request.POST['description']
-                dao.update_item(item_id, name, price, description)
-    else:
-        #This case handles when request.method == GET
-        #When the page is loaded the first time
-        pass
+                dao.update_item(item_id, name = name, price = price, description = description)
+                
     return render(request, 'desktop_index.html',
                   {'items': items,
                    'item_form': item_form,
@@ -73,7 +71,9 @@ def manager_items(request, client_id):
 
 def manager_menus(request, client_id):
     #TODO: some refactoring,
-    #      make the form validations work with the javascript part
+    #      make the form validations work with the javascript part,
+    #      make a clean decoupled design and python view code that is independent of
+    #      the DB or JS code.
     menus = dao.get_client_menus(client_id)
     items = dao.get_client_items_name_id(client_id)
     if request.method == 'POST':
@@ -90,10 +90,7 @@ def manager_menus(request, client_id):
                 "Sets the selected menu as active"
                 menu_id = jstree2mongo(request.POST)['id']
                 dao.update_active_menu(client_id, menu_id)
-    else:
-        #This case handles when request.method == GET
-        #When the page is loaded the first time
-        pass  
+
     return render(request, 'desktop_index.html',
                   {'menus': menus, 'items': items,
                    'json_menus': mongo2jstree_list(menus),
@@ -164,6 +161,13 @@ def mongo2jstree(menu):
     explo(menu, tree = tree)
     return simplejson.dumps(tree)
 
+def mongo2jstree_list(menus):
+    '''handles multiple menus with the function above'''
+    js_menus = []
+    for menu in menus:
+        js_menus.append(mongo2jstree(menu))
+    return js_menus 
+
 def explo(data, name='', level = 0, path=[], tree = {'data': []}):
     if 'structure' in data:
         for child in data['structure']:
@@ -174,7 +178,6 @@ def explo(data, name='', level = 0, path=[], tree = {'data': []}):
         path.insert(level-1, name)
         path = path[:level]
         eval(p2d(path, level)).insert(0, {'data': name, 'attr': {'rel': 'section'},'state': 'open','children':[]})
-
         for child in data:
             explo(data[child], name=child, level=level, path=path, tree=tree)
     elif type(data) is list:
@@ -189,20 +192,12 @@ def explo(data, name='', level = 0, path=[], tree = {'data': []}):
             ##### ITEMS #####
             eval(p2d(path, level)).insert(0, {'data': dao.get_item(child)['name'], 'attr': {'id': child, 'rel': 'item'}})
 
-
 def p2d(path, level):
     string = "tree['data'][0]['children']"
     for branch in path[:level-1]:
         string += "[0]['children']"
     return string
-
-def mongo2jstree_list(menus):
-    '''handles multiple menus with the function above'''
-    js_menus = []
-    for menu in menus:
-        js_menus.append(mongo2jstree(menu))
-    return js_menus                  
-    
+  
 def jstree2mongo(tree):
     '''Changes the structure of the menu that uses jstree
     to the original way that mongo uses.
