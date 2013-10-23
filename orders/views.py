@@ -37,7 +37,7 @@ def manager_items(request, client_id):
     #TODO: some refactoring,
     #      make the form validations work with the javascript part
     menu = dao.get_client_menu(client_id)
-    items = dao.get_client_items_w_id(client_id)
+    items = dao.get_client_items(client_id)
     item_form = ItemForm()
     if request.method == 'POST':
         if request.is_ajax():
@@ -75,7 +75,7 @@ def manager_menus(request, client_id):
     #      make a clean decoupled design and python view code that is independent of
     #      the DB or JS code.
     menus = dao.get_client_menus(client_id)
-    items = dao.get_client_items_name_id(client_id)
+    items = dao.get_client_items(client_id)
     if request.method == 'POST':
         if request.is_ajax():
             if 'add_menu' in request.POST:

@@ -94,21 +94,9 @@ class OrdersDAO:
 
     def get_client_items(self, client_id):
         items = list(self.db.items.find({'client_id': client_id}))
-        return items
-
-    def get_client_items_w_id(self, client_id):
-        items = list(self.db.items.find({'client_id': client_id}))
         for item in items:
             item['id'] = str(item['_id'])
         return items
-
-    def get_client_items_name_id(self, client_id):
-        items_list = []
-        items = list(self.db.items.find({'client_id': client_id}))
-        for item in items:
-            items_list.append({'id': str(item['_id']), 'name': item['name']})
-        return items_list
-    
 
     def add_item(self, client_id, name, price, description):
         self.db.items.insert({'client_id': client_id,
