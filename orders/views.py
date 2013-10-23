@@ -2,6 +2,7 @@ import logging
 
 from django.http import HttpResponse, Http404
 from django.shortcuts import render, redirect
+from django.utils import simplejson
 
 from settings import dao
 from orders.forms import SectionForm, ItemForm, ItemInsert
@@ -61,95 +62,70 @@ def section(request, menu_id, division, section):
     return render(request, 'index.html',
                 {'template':'section.html', 'name':section, 'items':items})
 
-def managerview(request, client_id):
+def manager_items(request, client_id):
     #TODO: some refactoring,
     #      make the form validations work with the javascript part
     menu = dao.get_client_menu(client_id)
     items = dao.get_client_items(client_id)
+    item_form = ItemForm()
     if request.method == 'POST':
-        if 'add_section' in request.POST:
-            #This case handles the add section submit form
-            section_form = SectionForm(request.POST)
-            item_form = ItemForm()
-            iteminsert_form = ItemInsert(choices=items)
-            if section_form.is_valid():
-                #If the form is valid it enters here
-                cd = section_form.cleaned_data
-                name = cd['name']
-                has_subsections = cd['has_subsections']
-                inside = cd['inside']
-                dao.add_section(client_id, name, has_subsections, inside)
-        elif 'delete_section' in request.POST:
-            #This case handles the delete section submit form
-            section_form = SectionForm(request.POST)
-            item_form = ItemForm()
-            iteminsert_form = ItemInsert(choices=items)
-            if section_form.is_valid():
-                #If the form is valid it enters here
-                cd = section_form.cleaned_data
-                name = cd['name']
-                inside = cd['inside']
-                dao.del_section(client_id, name, inside)
-        elif 'add_item' in request.POST:
-            #This case handles de add items submit form
-            section_form = SectionForm()
-            item_form = ItemForm(request.POST)
-            iteminsert_form = ItemInsert(choices=items)
-            if item_form.is_valid():
-                #If the form is valid it enters here
-                cd = item_form.cleaned_data
-                name = cd['name']
-                price = cd['price']
-                description = cd['description']
-                if request.is_ajax():
-                    #Checks if the request is ajax after the validation of the form
-                    #Even though the javascript part is running without validation...
+        if request.is_ajax():
+            if 'add_item' in request.POST:
+                #This case handles the add items submit form
+                item_form = ItemForm(request.POST)
+                if item_form.is_valid():
+                    #If the form is valid it enters here
+                    cd = item_form.cleaned_data
+                    name = cd['name']
+                    price = cd['price']
+                    description = cd['description']
                     dao.add_item(client_id, name, price, description)
-        elif 'delete_item_id' in request.POST:
-            #This case handles de delete item submit form
-            section_form = SectionForm()
-            item_form = ItemForm()
-            iteminsert_form = ItemInsert(choices=items)
-            item_id = request.POST['delete_item_id']
-            if request.is_ajax():
-                #Checks if the request is ajax
-                #IDK if this is necesary or even in the right order
-                dao.del_item(item_id)
-        elif 'insertitem' in request.POST:
-            #This case handles de insert item submit form
-            section_form = SectionForm()
-            item_form = ItemForm()
-            iteminsert_form = ItemInsert(request.POST, choices=items)
-            if iteminsert_form.is_valid():
-                #If the form is valid it enters here
-                cd = iteminsert_form.cleaned_data
-                insert = cd['insert']
-                inside = cd['inside']
-                dao.insert_item(client_id, insert, inside)
-        elif 'remove_from' in request.POST:
-            #This case handles de remove item submit form
-            section_form = SectionForm()
-            item_form = ItemForm()
-            iteminsert_form = ItemInsert(request.POST, choices=items)
-            if iteminsert_form.is_valid():
-                #If the form is valid it enters here
-                cd = iteminsert_form.cleaned_data
-                insert = cd['insert']
-                inside = cd['inside']
-                dao.remove_item(client_id, insert, inside)
-    else:
-        #This case handles when request.method == GET
-        #When the page is loaded the first time
-        section_form = SectionForm()
-        item_form = ItemForm()
-        iteminsert_form = ItemInsert(choices=items)
+            elif 'delete_item_id' in request.POST:
+                #This case handles the delete item submit form
+                item_id = request.POST['delete_item_id']
+                dao.del_item(client_id, item_id)
+            elif 'save_edit' in request.POST:
+                #This case handles the updated items
+                item_id = request.POST['item_id']
+                name = request.POST['name']
+                price = float(request.POST['price'])
+                description = request.POST['description']
+                dao.update_item(item_id, name = name, price = price, description = description)
+                
     return render(request, 'desktop_index.html',
-                  {'menu': menu, 'items': items,
-                   'section_form': section_form,
+                  {'items': items,
                    'item_form': item_form,
-                   'iteminsert': iteminsert_form,
-                   'template': 'manager.html',
+                   'template': 'manager_items.html',
                    'title': 'Manager'})
+
+def manager_menus(request, client_id):
+    #TODO: some refactoring,
+    #      make the form validations work with the javascript part,
+    #      make a clean decoupled design and python view code that is independent of
+    #      the DB or JS code.
+    menus = dao.get_client_menus(client_id)
+    items = dao.get_client_items(client_id)
+    if request.method == 'POST':
+        if request.is_ajax():
+            if 'add_menu' in request.POST:
+                "Adds new menu to the db"
+                dao.add_menu(request.POST['menu_title'], client_id)
+            elif 'save_menu' in request.POST:
+                "Saves the selected menu to the db"
+                menu = jstree2mongo(request.POST)
+                dao.update_menu_title(menu['id'], menu['title'])
+                dao.update_menu_structure(menu['id'], menu['structure'])
+            elif 'active_menu' in request.POST:
+                "Sets the selected menu as active"
+                menu_id = jstree2mongo(request.POST)['id']
+                dao.update_active_menu(client_id, menu_id)
+
+    return render(request, 'desktop_index.html',
+                  {'menus': menus, 'items': items,
+                   'json_menus': mongo2jstree_list(menus),
+                   'template': 'manager_menus.html',
+                   'title': 'Manager'})
+
 
 def place_order(request, item_id, client_id):
     '''Places an order for qty units of item_id from client_id. This
@@ -235,3 +211,113 @@ def update_order(request, order_id):
     client_id = dao.get_client_id(order_id)
     return render(request, 'index.html',
                   {'template':'updated.html', 'client_id':client_id})
+
+####################
+# Helper functions #
+####################
+
+def mongo2jstree(menu):
+    '''Changes the structure of the menu that uses mongo
+    to a way jstree can read it
+    P.S: This function can go to infinite depth'''
+    tree = {'data': []}
+    i = 0
+    tree['data'].append({'data': menu['title'], 'attr': {'id': str(menu['_id']), 'rel': 'root'}, 'state': 'open', 'children': []})
+    explo(menu, tree = tree)
+    return simplejson.dumps(tree)
+
+def mongo2jstree_list(menus):
+    '''handles multiple menus with the function above'''
+    js_menus = []
+    for menu in menus:
+        js_menus.append(mongo2jstree(menu))
+    return js_menus 
+
+def explo(data, name='', level = 0, path=[], tree = {'data': []}):
+    if 'structure' in data:
+        for child in data['structure']:
+            explo(data['structure'][child], name=child, tree = tree)
+    elif type(data) is dict:
+        level += 1
+        ##### SECTIONS #####
+        path.insert(level-1, name)
+        path = path[:level]
+        eval(p2d(path, level)).insert(0, {'data': name, 'attr': {'rel': 'section'},'state': 'open','children':[]})
+        for child in data:
+            explo(data[child], name=child, level=level, path=path, tree=tree)
+    elif type(data) is list:
+        level += 1
+        ##### SUBSECTIONS ######
+        path.insert(level-1, name)
+        path = path[:level]
+        eval(p2d(path, level)).insert(0, {'data': name, 'attr': {'rel': 'subsection'}, 'state': 'open','children':[]})
+       
+        level += 1
+        for child in data:
+            ##### ITEMS #####
+            eval(p2d(path, level)).insert(0, {'data': dao.get_item(child)['name'], 'attr': {'id': child, 'rel': 'item'}})
+
+def p2d(path, level):
+    string = "tree['data'][0]['children']"
+    for branch in path[:level-1]:
+        string += "[0]['children']"
+    return string
+  
+def jstree2mongo(tree):
+    '''Changes the structure of the menu that uses jstree
+    to the original way that mongo uses.
+    P.S: This function can go to infinite depth'''
+    body = simplejson.loads(tree['tree'])
+    structure = {}
+    explore(body[0], structure = structure)
+    return {unicode('structure'): structure, unicode('title'): body[0]['data'], unicode('id'): body[0]['attr']['id']}
+
+def dictizeString(string, dictionary, item_id = unicode(), subsection = unicode(), section = unicode()):
+    '''Help enters the path(string) in the structure(dictionary)''' 
+    while string.startswith('/'):
+        string = string[1:]
+    parts = string.split('/', 1)
+    if len(parts) > 1:
+        branch = dictionary.setdefault(parts[0], {})
+        dictizeString(parts[1], branch, item_id = item_id, subsection = subsection, section = section)
+    else:
+        if item_id:
+            if dictionary.has_key(parts[0]):
+                 dictionary[parts[0]].append(item_id)
+            else:
+                 dictionary[parts[0]] = [item_id]
+        if subsection:
+            if not dictionary.has_key(parts[0]):
+                 dictionary[parts[0]] = []
+        if section:
+            if not dictionary.has_key(parts[0]):
+                 dictionary[parts[0]] = {}
+
+                                 
+def explore(data, path = '', structure = {}):
+    '''Explores de jstree with recursion'''
+    if data['attr']['rel'] == 'root':
+        if 'children' in data:
+            for child in data['children']:
+                explore(child, structure = structure)
+            
+    elif data['attr']['rel'] == 'section': 
+        path += '/' + data['data']
+        dictizeString(path, structure, section = data['data'])
+        if 'children' in data:
+            for child in data['children']:
+                explore(child, path = path, structure = structure)
+                
+    elif data['attr']['rel'] == 'subsection':
+        path += '/' + data['data']
+        dictizeString(path, structure, subsection = data['data'])
+        if 'children' in data:
+            for child in data['children']:
+                explore(child, path = path, structure = structure)
+                
+    elif data['attr']['rel'] == 'item':
+        dictizeString(path, structure, item_id = data['attr']['id'])
+
+
+
+

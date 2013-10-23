@@ -9,6 +9,7 @@ clients = [
 
 menus = [
     {'_id':'m0',
+     'title': 'My main bootstrapped menu',
      'structure': {
          'Food':{
              'Appetizers':['0','1','2','3'],
@@ -25,11 +26,13 @@ menus = [
      }
     },
     {'_id': 'm1',
+     'title': 'Other menu',
      'structure': {
          'Drinks': []
          }
      },
     {'_id': 'm2',
+     'title': 'Menu title',
      'structure': {
          'Food': []
          }
