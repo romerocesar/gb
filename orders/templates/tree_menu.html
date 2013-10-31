@@ -1,0 +1,21 @@
+<div data-role="page">
+  <div data-role="header">
+    {% include 'menubtn.html' %}
+    <p>Menu {{path}}</p>
+    {% include 'myordersbtn.html' %}
+  </div>
+  <div data-role="content">
+    <ul data-role="listview" data-divider-theme="d">
+      {% for item in items %}
+      {% if item.type == 'divider' %}
+      <li data-role="list-divider">{{item.name}}</li>
+      {% elif item.type == 'section' %}
+      <li><a href="{% url 'menu' menu_id item.path %}">{{item.name}}</a></li>
+      {% elif item.type == 'item' %}
+      <li><a href="{% url 'item' item.id %}">{{item.name}} - {{item.price}}</a></li>
+      {% endif %}
+      {% endfor %}
+    </ul>
+  </div>
+  <div data-role="footer"/>
+</div>

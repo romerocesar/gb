@@ -4,7 +4,7 @@ from django.http import HttpResponse, Http404
 from django.shortcuts import render, redirect
 from django.utils import simplejson
 
-from settings import dao
+from settings import dao, render_menu
 from orders.forms import SectionForm, ItemForm, ItemInsert
 
 logger = logging.getLogger('orders.views')
@@ -13,12 +13,16 @@ logger = logging.getLogger('orders.views')
 # includes the parent template as well as commons variables such as
 # client_name.
 
-def menu(request, client_id, seat_id):
+def init_session(request, client_id, seat_id):
+    '''Initializes the session with the client_id and seat_id of the
+    user so it can be redirected to the right menu in the future. This
+    takes the user to the top-level section of the client's active
+    menu.'''
     try:
-        menu = dao.get_client_menu(client_id)
+        lmenu = dao.get_active_menu_id(client_id)
     except ValueError as e:
         logger.error('invalid client id '+client_id, e)
-        menu = dao.get_client_menu()
+        raise Http404
     # validate seat
     if not dao.is_valid_seat(client_id, seat_id):
         # TODO: in this case we should let the user browse the menu
@@ -27,12 +31,20 @@ def menu(request, client_id, seat_id):
     # TODO: enforce only one session per seat until all orders in it are paid
     if 'seat_id' not in request.session:
         request.session['seat_id'] = seat_id
-    if 'client_it' not in request.session:
+    if 'client_id' not in request.session:
         request.session['client_id'] = client_id
-    menu['id'] = str(menu['_id'])
-    return render(request, 'index.html',
-                  {'menu':menu, 'template':'menu.html', 'title':'Menu',
-                   'client_id':client_id, 'seat_id':seat_id})
+
+    return menu(request, lmenu)
+
+def menu(request, menu_id, path = ''): 
+    '''Main entry point for a menu. It takes the menu ID and the path
+    within that menu the user is requesting. It uses the menu renderer
+    configured in orders/settings.py'''
+    logger.debug('menu_id: %s, path: %s', menu_id, path)
+    client_id = request.session['client_id']
+    m = dao.get_menu(menu_id)
+    logger.info('with menu_id %s found: %s', menu_id, m)
+    return render_menu(request, m, path)
 
 def back_to_menu(request):
     '''Shortcut view for users to "return" back to the top of the menu
@@ -44,7 +56,7 @@ def back_to_menu(request):
     if 'seat_id' in request.session and 'client_id' in request.session:
         cid = request.session['client_id']
         sid = request.session['seat_id']
-        return menu(request, cid, sid)
+        return init_session(request, cid, sid)
     raise Http404
 
 def item(request, item_id):
@@ -53,19 +65,24 @@ def item(request, item_id):
     return render(request, 'index.html',
                  {'template':'item.html', 'title':item['name'], 'item':item})
 
-def section(request, menu_id, division, section):
-    logger.info('%s::%s::%s', menu_id, division, section)
+def section(request, menu_id, *path):
+    '''This view receives a tokenized path within a menu, and calls
+    the menu renderer. Used by the basic menu template, but may be
+    deprecated in the future for a more flexible view that doens't require the path 
+    to be tokenized.'''
+    logger.debug('mid: %s, path: %s', menu_id, path)
     menu = dao.get_menu(menu_id)
-    ids = menu['structure'][division][section]
-    items = dao.get_items(ids)
-    logger.debug('items %s', items)
-    return render(request, 'index.html',
-                {'template':'section.html', 'name':section, 'items':items})
+    logger.info('menu: %s, path: %s', menu, path)
+    return render_menu(request, menu, '/'.join(path))
+
+def menu_path(request, menu_id, path):
+    '''This view receives a path that is not tokenized.'''
+    pass
 
 def manager_items(request, client_id):
     #TODO: some refactoring,
     #      make the form validations work with the javascript part
-    menu = dao.get_client_menu(client_id)
+    menu = dao.get_active_menu(client_id)
     items = dao.get_client_items(client_id)
     item_form = ItemForm()
     if request.method == 'POST':

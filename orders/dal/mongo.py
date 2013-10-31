@@ -25,9 +25,14 @@ class MongoOrdersDAO(OrdersDAO):
             self.db.clients.remove()
             self.db.clients.insert(clients)
 
-    def get_menu(self, menu_id='m0'):
+    def get_menu(self, menu_id):
         '''Gets the menu that matches the specified menu ID'''
-        return self.db.menus.find_one(menu_id)
+        logger.debug('menu_id: %s', menu_id)
+        mongoid = get_mongo_id(menu_id)
+        menu = self.db.menus.find_one(mongoid)
+        menu['id'] = str(menu['_id'])
+        logger.info('menu:%s', menu)
+        return menu
 
     def get_client_menus_list(self, client_id):
         '''Gets the list of menus from the client'''
@@ -60,22 +65,20 @@ class MongoOrdersDAO(OrdersDAO):
         logger.info('item %s',item)
         return item
 
-    def get_items(self,ids):
+    def get_items(self, ids):
         '''get a list of menu items that corresponds to the specified
         ids. If an id is invalid, it will be skipped silently so that
         other valid items can still be retrieved'''
-        logger.info('ids %s', ids)
-        items  = self.db.items.find({'_id':{'$in':ids}})
+        logger.debug('getting %d items: %s', len(ids), ids)
+        mongoids = [get_mongo_id(i) for i in ids]
+        logger.debug('fetching %d items from mongo %s',len(mongoids), mongoids)
+        items  = self.db.items.find({'_id':{'$in':mongoids}})
         res = []
         for item in items:
             item['id'] = str(item['_id'])
             res.append(item)
-        logger.info('items %s',res)
+        logger.info('got %d items %s', len(res), res)
         return res
-
-    def get_menu_id(self, client_id):
-        '''gets the id of the active menu of the client'''
-        return self.db.clients.find_one({'_id': client_id})['menu']
 
     def get_client(self, client_id):
         '''Simply return the client that matches the specified id'''
@@ -88,10 +91,19 @@ class MongoOrdersDAO(OrdersDAO):
         cid = self.db.orders.find_one(ObjectId(order_id))['client_id']
         return cid
 
-    def get_client_menu(self, client_id='c0'):
+    def get_active_menu_id(self, client_id):
+        '''gets the id of the active menu of the client'''
+        mongoid = get_mongo_id(client_id)
+        return self.db.clients.find_one({'_id': mongoid})['menu']
+
+    def get_active_menu(self, client_id):
         '''Gets the active menu for the specified client ID.'''
-        mid = self.db.clients.find_one(client_id)['menu']
+        logger.debug('client_id: %s',client_id)
+        mongoid = get_mongo_id(client_id)
+        mid = self.db.clients.find_one(mongoid)['menu']
         menu = self.db.menus.find_one(mid)
+        menu['id'] = str(menu['_id'])
+        logger.info('menu:%s',menu)
         return menu
 
     def get_client_name(self, client_id):
@@ -280,12 +292,9 @@ class MongoOrdersDAO(OrdersDAO):
 
     def update_menu_title(self, menu_id, title):
         'Updates de title of the menu'
-        if len(menu_id) > 10:
-            #Mongo id
-            self.db.menus.update({'_id': ObjectId(menu_id)}, {'$set': {'title': title}})
-        else:
-            #Bootstrapped id
-            self.db.menus.update({'_id': menu_id}, {'$set': {'title': title}})
+        logger.debug({'menu_id':menu_id,'title':title})
+        mongoid = get_mongo_id(menu_id)
+        self.db.menus.update({'_id': mongoid}, {'$set': {'title': title}})
 
     def update_active_menu(self, client_id, menu_id):
         'Sets the new active menu'
@@ -324,3 +333,13 @@ def compute_delay(mongo_obj):
     if qty > 1: 
         ans += 's'
     return ans + ' ago'
+
+def get_mongo_id(iid):
+    logger.debug('id: %s',iid)
+    try:
+        mongo_id = ObjectId(iid)
+    except pymongo.errors.InvalidId:
+        logger.warn('could not convert id %s to ObjectId',iid)
+        mongo_id = iid
+    logger.info('mongo_id: %s',mongo_id)
+    return mongo_id

@@ -12,3 +12,8 @@ from dal import mongo, test
 # only enable this in a dev/test environment - never in production
 # dao = test.TestOrdersDAO()
 dao = mongo.MongoOrdersDAO(True)
+
+# Renderers
+from render import menu
+
+render_menu = menu.render_tree_menu

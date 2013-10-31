@@ -2,11 +2,12 @@ from django.conf.urls import patterns, url
 from orders import views
 
 urlpatterns = patterns('',
-    url(r'^client/(\w+)/seat/(\w+)$', views.menu, name='menu'),
+    url(r'^client/(\w+)/seat/(\w+)$', views.init_session),
     url(r'^item/(\w+)$', views.item, name='item'),
     url(r'^manager/(\w+)/items$', views.manager_items),
     url(r'^manager/(\w+)/menus$', views.manager_menus),
     url(r'^menu$', views.back_to_menu, name='back_to_menu'),
+    url(r'^menu/(\w+)/(.+)$', views.menu, name='menu'),
     url(r'^menu/(\w+)/(.+)/(.+)$', views.section, name='section'),
     url(r'^myorders$', views.myorders, name='myorders'),
     url(r'^myorders/bill$', views.bill, name='mybill'),
