@@ -82,12 +82,11 @@ def menu_path(request, menu_id, path):
 def manager_items(request, client_id):
     #TODO: some refactoring,
     #      make the form validations work with the javascript part
-    menu = dao.get_active_menu(client_id)
     items = dao.get_client_items(client_id)
     item_form = ItemForm()
     if request.method == 'POST':
         if request.is_ajax():
-            if 'add_item' in request.POST:
+            if 'create_item' in request.POST:
                 #This case handles the add items submit form
                 item_form = ItemForm(request.POST)
                 if item_form.is_valid():
@@ -120,6 +119,7 @@ def manager_menus(request, client_id):
     #      make the form validations work with the javascript part,
     #      make a clean decoupled design and python view code that is independent of
     #      the DB or JS code.
+    item_form = ItemForm()
     menus = dao.get_client_menus(client_id)
     items = dao.get_client_items(client_id)
     if request.method == 'POST':
@@ -136,9 +136,29 @@ def manager_menus(request, client_id):
                 "Sets the selected menu as active"
                 menu_id = jstree2mongo(request.POST)['id']
                 dao.update_active_menu(client_id, menu_id)
+            elif 'create_item' in request.POST:
+                #This case handles the create items submit form
+                item_form = ItemForm(request.POST)
+                if item_form.is_valid():
+                    #If the form is valid it enters here
+                    cd = item_form.cleaned_data
+                    name = cd['name']
+                    price = cd['price']
+                    description = cd['description']
+                    dao.add_item(client_id, name, price, description)
+            elif 'edit_item' in request.POST:
+                item_form = ItemForm(request.POST)
+                if item_form.is_valid():
+                    cd = item_form.cleaned_data
+                    item_id = request.POST['item_id']
+                    name = cd['name']
+                    price = cd['price']
+                    description = cd['description']
+                    dao.update_item(item_id, name = name, price = price, description = description)
 
     return render(request, 'desktop_index.html',
                   {'menus': menus, 'items': items,
+                   'item_form': item_form,
                    'json_menus': mongo2jstree_list(menus),
                    'template': 'manager_menus.html',
                    'title': 'Manager'})
@@ -272,7 +292,8 @@ def explo(data, name='', level = 0, path=[], tree = {'data': []}):
         level += 1
         for child in data:
             ##### ITEMS #####
-            eval(p2d(path, level)).insert(0, {'data': dao.get_item(child)['name'], 'attr': {'id': child, 'rel': 'item'}})
+            item = dao.get_item(child)
+            eval(p2d(path, level)).insert(0, {'data': item['name'], 'attr': {'id': child, 'rel': 'item', 'name': item['name'], 'price': item['price'], 'description': item['description']}})
 
 def p2d(path, level):
     string = "tree['data'][0]['children']"

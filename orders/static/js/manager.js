@@ -1,3 +1,9 @@
+$("form input[type=submit]").click(function() {
+	//This function sets clicked=true to the input button clicked of the form
+    $("input[type=submit]", $(this).parents("form")).removeAttr("clicked");
+    $(this).attr("clicked", "true");
+});
+
 function objetify_form(array) {
 	//This function takes an array = $.serializeArray()
 	//and returns a JSON
@@ -14,6 +20,105 @@ function tabsfunc() {
     $( "#tabs li" ).removeClass( "ui-corner-top" ).addClass( "ui-corner-left" );
   };
 
+function customMenu(node) {
+	//This is the context menu of the jstree
+
+	// The default set of all items
+	var items = {
+		"ccp": false,
+		"create": false,
+		"rename": false,
+		"remove": false,
+		"Create": {
+			"label": "Create",
+			"separator_after": true,
+			"submenu": {
+				"Section": {
+					"label": "Section",
+					"action": function (obj) {
+						this.create(obj, "inside", {"data": "New Section", "state": "open", "attr":{"rel": "section"}}); 
+					}
+				},
+				"Sub": {
+					"label": "Sub-Section",
+					"action": function (obj) {
+						this.create(obj, "inside", {"data": "New Sub-Section", "state": "open", "attr":{"rel": "subsection"}}); 
+					}
+				}
+			}
+		},
+		"Insert": {
+			"label": "Insert Item",
+			"separator_after": true,
+			"action": function(obj) {$('#insert_item_modal_button').click()}
+		},
+		"Edit" : {
+			"label": "Edit",
+			"submenu": {
+				"Cut": {
+					"label" : "Cut",
+					"action" : function(obj) { this.cut(obj); }
+				},
+				"Copy" : {
+					"label" : "Copy",
+					"action": function(obj) { this.copy(obj); }
+				},
+				"Paste": {
+					"label": "Paste",
+					"action": function(obj) { this.paste(obj); }
+				},
+				"Rename" : {
+					"label" : "Rename",
+					"action" : function (obj) { this.rename(obj); }
+				},
+				"Remove": {
+					"label": "Remove",
+					"action": function(obj) { this.remove(obj); }
+				}
+			}
+		},
+		"Edit_Item": {
+			"label": "Edit Item",
+			"action": function(obj) { 
+				$('#edit_item_form').find('#id_id').val($('.jstree-clicked').parent().attr('id'));
+				$('#edit_item_form').find('#id_name').val($('.jstree-clicked').parent().attr('name'));
+				$('#edit_item_form').find('#id_price').val($('.jstree-clicked').parent().attr('price'));
+				$('#edit_item_form').find('#id_description').val($('.jstree-clicked').parent().attr('description'));
+				$('#edit_item_modal_button').click();
+			}
+		}
+	};
+	// Cases for each type of node
+	switch ($(node).attr('rel')) {
+		case 'root':
+			delete items.Insert;
+			delete items.Edit.submenu.Cut;
+			delete items.Edit.submenu.Copy;
+			delete items.Edit.submenu.Remove;
+			delete items.Edit_Item;
+		break;
+		
+		case 'section':
+			delete items.Insert;
+			delete items.Edit_Item;
+		break;
+		
+		case 'subsection':
+			delete items.Create
+			delete items.Edit_Item;
+		break;
+		
+		case 'item':
+			delete items.Create
+			delete items.Insert;
+			delete items.Edit.submenu.Paste;
+			delete items.Edit.submenu.Rename;
+		break;
+	};
+	
+	return items;
+}
+  
 function treemaker(){  
   	for (var i=0; i<menus.length; i++){
 		var j = i + 1;
@@ -51,45 +156,7 @@ function treemaker(){
 			"theme": "apple"
 		},
 		"plugins" : [ "themes", "json_data", "ui", "dnd", "crrm", "contextmenu", "hotkeys", "unique", "types", "sort" ],
-		"contextmenu": {
-			"items": {
-				"ccp": false,
-				"create": false,
-				"rename": false,
-				"remove": false,
-				"Create": {
-					"label": "Create",
-					"separator_after": true,
-					"submenu": {
-						"Section": {
-							"label": "Section",
-							"action": function (obj) {
-								this.create(obj, "inside", {"data": "New Section", "state": "open", "attr":{"rel": "section"}}); 
-							}
-						},
-						"Sub": {
-							"label": "Sub-Section",
-							"action": function (obj) {
-								this.create(obj, "inside", {"data": "New Sub-Section", "state": "open", "attr":{"rel": "subsection"}}); 
-							}
-						}
-					}
-				},
-				"Insert": {
-					"label": "Insert Item",
-					"separator_after": true,
-					"action": function(obj) {$('#insert_item_modal_button').click()}
-				},
-				"Rename" : {
-					"label" : "Rename",
-					"action" : function (obj) { this.rename(obj); }
-				},
-				"Remove": {
-					"label": "Remove",
-					"action": function(obj) { this.remove(obj); }
-				}
-			}
-		}
+		"contextmenu": {"items": customMenu	},
 		});
 	};
 };  
@@ -164,13 +231,35 @@ $(document).ready(function() {
 		return false;
 	});
 	
-	$('#add_item_form').submit(function() {
+	$('#edit_item_form').submit(function() {
 		$.ajax({
-			data: $(this).serialize() + "&add_item",
+			data: $(this).serialize() + "&edit_item",
+			type: $(this).attr('method'),
+			url: $(this).attr('action'),
+			success: function(response) {
+				$('#insert_item_loader').load(' #insert_item_table_container', function(){item_insert_table()});
+				$('#tabs_container').load(' #tabs', function(){
+					tabsfunc();
+					treemaker();
+				});
+				$('#edit_item_modal').modal('toggle');
+			}
+		});	
+		return false;
+	});
+	
+	$('#create_item_form').submit(function() {
+		var button_pressed = $("input[type=submit][clicked=true]").val();
+		$.ajax({
+			data: $(this).serialize() + "&create_item",
 			type: $(this).attr('method'),
 			url: $(this).attr('action'),
 			success: function(response) {
 				$('#table_div').load(' #myTable', function(){tabledisplay()});
+				$('#insert_item_loader').load(' #insert_item_table_container', function(){item_insert_table()});
+				if (button_pressed == "Create") {
+					$('#create_item_modal').modal('toggle');
+				}
 			}
 		});	
 		return false;
@@ -227,7 +316,23 @@ $(document).ready(function() {
 	
 	$('#insert_item_button').click(function() {
 		$('.ui-selected').each(function(){
-			$('.jstree[aria-expanded="true"]').jstree("create", null, "inside", {"data": $(this).children('span').text(), "attr": {"rel": "item", "id": $(this).children('p').text()}}, false, true);
+			$('.jstree[aria-expanded="true"]').jstree(
+				"create",
+				null,
+				"inside",
+				{
+					"data": $(this).children('#item_insert_name').text(),
+					"attr": {
+						"rel": "item",
+						"id": $(this).children('#item_insert_id').text(),
+						"name": $(this).children('#item_insert_name').text(),
+						"price": $(this).children('#item_insert_price').text(),
+						"description": $(this).children('#item_insert_description').text()
+					}
+				},
+				false,
+				true
+			);
 		});
 	});
 	
@@ -236,7 +341,7 @@ $(document).ready(function() {
     // Will only work if string in href matches with location
         $('ul.nav a[href="./' + url + '"]').parent().addClass('active');
 		
-tabsfunc();
-treemaker();
-item_insert_table()
+	tabsfunc();
+	treemaker();
+	item_insert_table()
 });

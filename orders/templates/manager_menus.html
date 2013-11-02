@@ -1,4 +1,31 @@
 <!-- Button trigger modal -->
+  <a data-toggle="modal" href="#edit_item_modal" class="hidden" id="edit_item_modal_button">Edit Item</a>
+
+  <!-- Modal -->
+  <div class="modal fade" id="edit_item_modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+			<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+			<h4 class="modal-title">Edit Item</h4>
+        </div>
+        <div class="modal-body">
+			<form action="" method="post" id="edit_item_form">
+				<div class="ajaxwrapper">
+				<table>
+				{{ item_form.as_table }}
+				</table>
+				{% csrf_token %}
+				<input type="hidden" name="item_id" id="id_id">
+				</div>
+				<input type="submit" value="Save" name="edit_item" class="btn btn-primary">
+			</form>
+        </div>
+      </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+  </div><!-- /.modal -->
+
+<!-- Button trigger modal -->
   <a data-toggle="modal" href="#add_menu_modal" class="btn btn-primary btn-lg">Add Menu</a>
 
   <!-- Modal -->
@@ -6,14 +33,14 @@
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
-          <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-          <h4 class="modal-title">Add Menu</h4>
+			<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+			<h4 class="modal-title">Add Menu</h4>
         </div>
         <div class="modal-body">
 			<form action="" method="post" id="add_menu_form">
 				<div class="ajaxwrapper">
-				Menu title: <input type="text" name="menu_title" id="tab_title" value="" class="ui-widget-content ui-corner-all" size="40"/>
-				{% csrf_token %}
+					Menu title: <input type="text" name="menu_title" id="tab_title" value="" class="ui-widget-content ui-corner-all" size="80"/>
+					{% csrf_token %}
 				</div>
 				</br>
 				<input type="submit" value="Add" name="add_menu" class="btn btn-primary">
@@ -33,40 +60,73 @@
           <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
           <h4 class="modal-title">Insert Item:</h4>
         </div>
-        <div class="modal-body">
-			<table id="insert_item_table" class="tablesorter">
-				<thead>
-					<tr>
-						<th>Name</th>
-					</tr>
-				</thead>
-				<tbody id="selectable">
-					{% for item in items %}
-						<tr class="menu_items ui-widget-content">
-							<td class="ui-widget-content"><span>{{ item.name }}</span><p class="hidden">{{ item.id }}</p></td>
+		<div id="insert_item_loader">
+			<div class="modal-body" id="insert_item_table_container">
+				<table id="insert_item_table" class="tablesorter">
+					<thead>
+						<tr>
+							<th>Name</th>
 						</tr>
-					{% endfor %}
-				</tbody>
-			</table>
-			<button type="button" id="insert_item_button" class="btn btn-primary">Insert</button>
-        </div>
+					</thead>
+					<tbody id="selectable">
+						{% for item in items %}
+							<tr class="menu_items ui-widget-content">
+								<td class="ui-widget-content">
+									<span id="item_insert_name">{{ item.name }}</span>
+									<p id="item_insert_id" class="hidden">{{ item.id }}</p>
+									<p id="item_insert_price" class="hidden">{{ item.price }}</p>
+									<p id="item_insert_description" class="hidden">{{ item.description }}</p>
+								</td>
+							</tr>
+						{% endfor %}
+					</tbody>
+				</table>
+				<button type="button" id="insert_item_button" class="btn btn-primary">Insert</button>
+			</div>
+		</div>
       </div><!-- /.modal-content -->
     </div><!-- /.modal-dialog -->
   </div><!-- /.modal -->
   
-<div id="tabs_container">
-<div id="tabs">
-	<ul>
-		{% for menu in menus %}
-			<li><a href="#tabs-{{ forloop.counter }}">{{ menu.title }}</a><p class="hidden">{{ menu.id }}</p></li>
-		{% endfor %}
-	</ul>
-	{% for menu in menus %}
-		<div id="tabs-{{ forloop.counter }}">
-		</div>
-	{% endfor %}
+<!-- Button trigger modal -->
+  <a data-toggle="modal" href="#create_item_modal" class="btn btn-primary btn-lg" id="create_item_modal_button">Create Item</a>
 
-</div>
+  <!-- Modal -->
+  <div class="modal fade" id="create_item_modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+          <h4 class="modal-title">Create Item</h4>
+        </div>
+        <div class="modal-body">
+			<form action="" method="post" id="create_item_form">
+				<div class="ajaxwrapper">
+				<table>
+				{{ item_form.as_table }}
+				</table>
+				{% csrf_token %}
+				</div>
+				<input type="submit" value="Create" name="add_item" class="btn btn-primary">
+				<input type="submit" value="Quick Create" name="add_item" class="btn btn-primary">
+			</form>
+        </div>
+      </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+  </div><!-- /.modal --> 
+ 
+<div id="tabs_container">
+	<div id="tabs">
+		<ul>
+			{% for menu in menus %}
+				<li><a href="#tabs-{{ forloop.counter }}">{{ menu.title }}</a><p class="hidden">{{ menu.id }}</p></li>
+			{% endfor %}
+		</ul>
+		{% for menu in menus %}
+			<div id="tabs-{{ forloop.counter }}">
+			</div>
+		{% endfor %}
+	</div>
 </div>
 
 <form action="" method="post" id="save_menu_form" class="floaty">

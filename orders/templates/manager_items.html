@@ -1,23 +1,24 @@
 <!-- Button trigger modal -->
-  <a data-toggle="modal" href="#myModal" class="btn btn-primary btn-lg">Add Item</a>
+  <a data-toggle="modal" href="#create_item_modal" class="btn btn-primary btn-lg">Create Item</a>
 
   <!-- Modal -->
-  <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+  <div class="modal fade" id="create_item_modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
           <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-          <h4 class="modal-title">Add Item</h4>
+          <h4 class="modal-title">Create Item</h4>
         </div>
         <div class="modal-body">
-			<form action="" method="post" id="add_item_form">
+			<form action="" method="post" id="create_item_form">
 				<div class="ajaxwrapper">
 				<table>
 				{{ item_form.as_table }}
 				</table>
 				{% csrf_token %}
 				</div>
-				<input type="submit" value="Add" name="add_item" class="btn btn-primary">
+				<input type="submit" value="Create" name="add_item" class="btn btn-primary">
+				<input type="submit" value="Quick Create" name="asd" class="btn btn-primary">
 			</form>
         </div>
       </div><!-- /.modal-content -->
