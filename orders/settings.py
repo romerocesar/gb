@@ -11,9 +11,15 @@ from dal import mongo, test
 # constructor. See dal/mongo.py to see the data being loaded. NOTE:
 # only enable this in a dev/test environment - never in production
 # dao = test.TestOrdersDAO()
-dao = mongo.MongoOrdersDAO(True)
+dao = mongo.MongoOrdersDAO()
 
-# Renderers
-from render import menu
+# Rendering
+from render import menu, order
 
 render_menu = menu.render_tree_menu
+
+customer_mods = [
+    order.bill_orders_modifier,
+    order.cancelable_item_modifier
+]
+server_mods = []

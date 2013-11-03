@@ -218,12 +218,10 @@ class MongoOrdersDAO(OrdersDAO):
         logger.debug('client_id: %s, query: %s', client_id, query)
         # TODO: move all field names to variables so this won't have
         # to change so dramatically whenever there's a schema change
-        query['client_id'] = client_id
+        query['client_id'] = get_mongo_id(client_id)
         if 'status' in query and type(query['status']) in (tuple, list):
             query['status'] = {'$in':query['status']}
-        logger.debug('querying mongo with',query)
         orders = self.db.orders.find(query)
-        logger.debug('mongo returned orders',orders)
         res = []
         names = {}
         for order in orders:

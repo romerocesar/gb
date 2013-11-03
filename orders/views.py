@@ -1,10 +1,11 @@
 import logging
 
-from django.http import HttpResponse, Http404
+from django.http import HttpResponse, Http404, HttpResponseForbidden
 from django.shortcuts import render, redirect
 from django.utils import simplejson
 
-from settings import dao, render_menu
+from settings import dao, render_menu, customer_mods, server_mods
+from render.order import render_orders
 from orders.forms import SectionForm, ItemForm, ItemInsert
 
 logger = logging.getLogger('orders.views')
@@ -163,14 +164,11 @@ def myorders(request):
     ''' Lists orders placed from this session as indicated by the
     session's seat_id and client_it. It will display orders that are
     in placed, prepared or served status.'''
-    client_id = request.session['client_id']
-    client_name = dao.get_client_name(client_id)
     orders = customer_orders(request)
-    return render(request, 'index.html', 
-                  {'template':'myorders.html', 'client_name': client_name,
-                   'orders': orders})
+    return render_orders(request, orders, customer_mods)
 
-def customer_orders(request, statii = (dao.ORDER_PLACED, dao.ORDER_PREPARED, dao.ORDER_SERVED, dao.BILL_REQUESTED)):
+def customer_orders(request, statii = (dao.ORDER_PLACED, dao.ORDER_PREPARED,
+                                       dao.ORDER_SERVED, dao.BILL_REQUESTED)):
     '''Helper function that returns a list of customer orders by
     extracting the seat and location id from the session in the input
     request. It defaults to orders in one of the following statii:
@@ -195,9 +193,8 @@ def bill(request):
 
 def list_orders(request, client_id, query={}):
     '''Lists orders in the specified client's queue. It defaults to
-    the pending orders, but the view should provide a way for the
-    server or manager to filter by any combination of date, status and
-    seat'''
+    the pending orders. TODO: provide a way for the server or manager
+    to filter by any combination of date, status and seat'''
     # default to ORDER_PLACED for now
     if 'status' not in query:
         query['status'] = dao.ORDER_PLACED
@@ -228,6 +225,27 @@ def update_order(request, order_id):
     client_id = dao.get_client_id(order_id)
     return render(request, 'index.html',
                   {'template':'updated.html', 'client_id':client_id})
+
+def cancel_order(request, order_id):
+    '''Cancels the specified order if the order corresponds to the
+    seat of the user sending this request. TODO: should this use
+    update_order instead? if so, the html would need to contain a form
+    per item in the list, which might not be a good idea.'''
+    logger.debug({'order':order_id})
+    try: 
+        order = dao.get_order(order_id)
+        sid = request.session['seat_id']
+        if order['seat_id'] != sid:
+            return HttpResponseForbidden('Only the user who placed the order can cancel it!')
+        res = dao.update_order(order_id, dao.ORDER_CANCELED)
+        if res != dao.ORDER_CANCELED:
+            logger.error('error canceling order %s from seat %s', order_id, sid)
+            return http.HttpResponseServerError('failed to update order status, please try again later')
+    except KeyError as e:
+        logger.error('sessions does not contain a seat ID - not canceling order %s'. order_id)
+        return HttpResponseForbidden
+    orders = customer_orders(request)
+    return render_orders(request, orders, customer_mods)
 
 ####################
 # Helper functions #
