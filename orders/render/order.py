@@ -40,6 +40,10 @@ def verbose_item_decorator(orders):
             item['delay'] = 'as of ' + item['delay']
     return {'item_template':'verbose_order.html'}, orders
         
+def searchable_list_modifier(items):
+    '''Enables a search filter on top of the list of orders. Useful
+    for servers to filter by item name.'''
+    return {'searchable':True}, items
 
 def cancelable_item_modifier(items):
     '''This item modifier adds a cancel button on to the item if the
@@ -71,7 +75,7 @@ def render_orders(request, orders, modifiers=[]):
     specifying a different set of modifiers if desired.  TODO:
     refactor list_orders in views.py to use this renderer and move the
     more flexible myorders.html to replace orders.html'''
-    template_params = DEFAULT_TEMPLATES
+    template_params = DEFAULT_TEMPLATES.copy()
     template_params['template'] = 'orders.html'
     client_id = request.session['client_id']
     client_name = dao.get_client_name(client_id)
@@ -81,4 +85,5 @@ def render_orders(request, orders, modifiers=[]):
         params, template_orders = mod(template_orders)
         template_params.update(params)
     template_params['orders'] = template_orders
+    logger.info({'template parameters':template_params})
     return render(request, 'index.html', template_params)

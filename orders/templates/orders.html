@@ -3,7 +3,8 @@
     {% include top_template %}
   </div>
   <div data-role="content">
-    <ul data-role="listview" data-theme="a" data-count-theme="a">
+    <ul data-role="listview" data-theme="a" data-count-theme="a"
+      data-filter="{{searchable}}">
       {% for order in orders %}
       {% include item_template %}
       {% endfor %}

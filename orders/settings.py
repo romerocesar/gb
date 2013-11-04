@@ -22,4 +22,6 @@ customer_mods = [
     order.bill_orders_modifier,
     order.verbose_item_decorator
 ]
-server_mods = []
+server_mods = [
+    order.searchable_list_modifier
+]
