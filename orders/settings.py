@@ -20,6 +20,6 @@ render_menu = menu.render_tree_menu
 
 customer_mods = [
     order.bill_orders_modifier,
-    order.cancelable_item_modifier
+    order.verbose_item_decorator
 ]
 server_mods = []
