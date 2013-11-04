@@ -1,11 +1,11 @@
 <div data-role="page">
-  <div data-role="header">
+  <div data-role="header" data-theme="f">
     {% include 'menubtn.html' %}
     <p>Menu {{path}}</p>
     {% include 'myordersbtn.html' %}
   </div>
   <div data-role="content">
-    <ul data-role="listview" data-divider-theme="d">
+    <ul data-role="listview" data-theme="a">
       {% for item in items %}
       {% if item.type == 'divider' %}
       <li data-role="list-divider">{{item.name}}</li>

@@ -8,7 +8,7 @@
       {% for division, sections in menu.structure.items %}
       <li data-role="list-divider">{{division}}</li>
       {% for section in sections %}
-      <li><a href="{% url 'section' menu.id division section %}">{{section}}</a></li>
+      <li data-theme="a"><a href="{% url 'section' menu.id division section %}">{{section}}</a></li>
       {% endfor %}
       {% endfor %}
     </ul>
