@@ -199,14 +199,13 @@ def list_orders(request, client_id, query={}):
     '''Lists orders in the specified client's queue. It defaults to
     the pending orders. TODO: provide a way for the server or manager
     to filter by any combination of date, status and seat'''
+    logger.debug({'client_id':client_id, 'query':query})
     # default to ORDER_PLACED for now
     if 'status' not in query:
         query['status'] = dao.ORDER_PLACED
     orders = dao.list_orders(client_id, query)
-    client_name = dao.get_client(client_id)['name']
-    return render(request, 'index.html',
-                  {'template':'orders.html', 'client_name':client_name,
-                   'orders':orders})
+    logger.info({'orders': orders,'modifiers':server_mods})
+    return render_orders(request, orders, server_mods)
 
 def order(request, order_id): 
     '''Displays order details and allows a server to update the status

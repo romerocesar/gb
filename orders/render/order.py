@@ -72,7 +72,7 @@ def render_orders(request, orders, modifiers=[]):
     refactor list_orders in views.py to use this renderer and move the
     more flexible myorders.html to replace orders.html'''
     template_params = DEFAULT_TEMPLATES
-    template_params['template'] = 'myorders.html'
+    template_params['template'] = 'orders.html'
     client_id = request.session['client_id']
     client_name = dao.get_client_name(client_id)
     template_params['client_name'] = client_name
