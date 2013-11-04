@@ -36,6 +36,8 @@ def verbose_item_decorator(orders):
         if item['status'] == dao.ORDER_PLACED:
             item['cancelable'] = True
         item['status'] = item['status'].replace('_','').capitalize()
+        if item['status'][-1] == 'g':
+            item['delay'] = 'as of ' + item['delay']
     return {'item_template':'verbose_order.html'}, orders
         
 

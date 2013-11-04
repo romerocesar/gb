@@ -1,13 +1,11 @@
-<li>
-  {% if order.cancelable %}
+<li data-theme="a">
   <a href="#">
-    {{order.item_name}}
-    <span class="ul-li-count" data-count-theme="b">{{order.quantity}}</span>
+    <h3>{{order.item_name}}</h3>
+    <div class="ui-li-count" data-theme="a">{{order.quantity}}</div>
+    <p class="ui-li-desc">{{order.status}} {{order.delay}}</p>
   </a>
-  <a href="{% url 'cancel_order' order.id %}" data-split-icon="delete"
-  data-split-theme="a"/>
-  {% else %}
-  {{order.quantity}} {{order.item_name}} 
-  <span class="delay">{{order.delay}}</span>
+  {% if order.cancelable %}
+  <a href="{% url 'cancel_order' order.id %}" data-icon="delete"
+  data-theme="d"></a>
   {% endif %}
 </li>

@@ -167,8 +167,8 @@ def myorders(request):
     orders = customer_orders(request)
     return render_orders(request, orders, customer_mods)
 
-def customer_orders(request, statii = (dao.ORDER_PLACED, dao.ORDER_PREPARED,
-                                       dao.ORDER_SERVED, dao.BILL_REQUESTED)):
+def customer_orders(request, statii = (dao.ORDER_PLACED, dao.ORDER_PREPARING,
+                                       dao.ORDER_PREPARED, dao.ORDER_SERVED, dao.BILL_REQUESTED)):
     '''Helper function that returns a list of customer orders by
     extracting the seat and location id from the session in the input
     request. It defaults to orders in one of the following statii:
