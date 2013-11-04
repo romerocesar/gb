@@ -61,8 +61,12 @@ def back_to_menu(request):
     raise Http404
 
 def item(request, item_id):
+    '''Renders a single item on a page that allows the customer to
+    order one or more units of it.'''
+    logger.debug({'item_id':item_id})
     item = dao.get_item(item_id)
     item['id'] = item['_id']
+    logger.info('rendering item: %s', item)
     return render(request, 'index.html',
                  {'template':'item.html', 'title':item['name'], 'item':item})
 
