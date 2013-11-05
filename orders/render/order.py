@@ -39,7 +39,13 @@ def verbose_item_decorator(orders):
         if item['status'][-1] == 'g':
             item['delay'] = 'as of ' + item['delay']
     return {'item_template':'verbose_order.html'}, orders
-        
+
+def list_settings_decorator(orders):
+    '''Displays a gear button on the right side of the header to allow
+    the user to apply filters to the list of orders shown. Ideal for
+    servers to filter by status, seat, time, etc'''
+    return {'top_template':'order_list_filters.html'}, orders
+
 def searchable_list_modifier(items):
     '''Enables a search filter on top of the list of orders. Useful
     for servers to filter by item name.'''

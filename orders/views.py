@@ -207,6 +207,16 @@ def list_orders(request, client_id, query={}):
     logger.info({'orders': orders,'modifiers':server_mods})
     return render_orders(request, orders, server_mods)
 
+def filter_orders(request):
+    '''Allows the user to specify filters on the list of orders they want to see.'''
+    try:
+        client_id = request.session['client_id']
+    except KeyError as e:
+        logger.error('Cannot filter orders with no client_id in the session')
+        return HttpResponseBadRequest('Invalid session. Please scan QR code or login again.')
+    # TODO: provide statii to template and handle POST request with filters
+    return render(request, 'index.html', {'template':'filter_orders.html', 'client_id':client_id})
+
 def order(request, order_id): 
     '''Displays order details and allows a server to update the status
     of the order. It extracts the definition of valid statii from the dao'''

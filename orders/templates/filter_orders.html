@@ -1,0 +1,30 @@
+<div data-role="page">
+  <div data-role="header" data-theme="f">
+    <a href="{% url 'orders' client_id %}" data-role="button"
+    data-theme="f" data-icon="arrow-l">Back to orders</a>
+    <h1>Filter Orders</h1>
+  </div>
+  <div data-role="content">
+    <!-- TODO: dynamically populate statii from template params and
+    update theme -->
+    <form id="filter_orders" action="{% url 'filter_orders' %}" method="post">
+      <fieldset data-role="controlgroup" data-type="horizontal" data-theme="a">
+	<legend>Filter by status</legend>
+	<input type="checkbox" name="s0" id="s0" class="custom"
+    	       data-mini="true"/>
+	<label for="s0">Placed</label>
+	<input type="checkbox" name="s1" id="s1" class="custom"
+    	       data-mini="true"/>
+	<label for="s1">Preparing</label>
+	<input type="checkbox" name="s2" id="s2" class="custom"
+    	       data-mini="true"/>
+	<label for="s2">Prepared</label>
+	<input type="checkbox" name="s3" id="s3" class="custom"
+    	       data-mini="true"/>
+	<label for="s3">Served</label>
+      </fieldset>
+    </form>
+  </div>
+  <div data-role="footer">
+  </div>
+</div>

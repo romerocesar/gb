@@ -15,5 +15,6 @@ urlpatterns = patterns('',
     url(r'^order/(\w+)$', views.order, name='order_details'),
     url(r'^order/(\w+)/update$', views.update_order, name='update_order'),
     url(r'^order/(\w+)/cancel$', views.cancel_order, name='cancel_order'),
+    url(r'^orders/filter$', views.filter_orders, name='filter_orders'),
     url(r'^orders/(\w+)$', views.list_orders, name='orders'),
 )
