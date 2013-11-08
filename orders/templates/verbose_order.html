@@ -1,5 +1,5 @@
 <li>
-  <a href="#">
+  <a href="{% url 'order_details' order.id %}">
     <h3>{{order.item_name}}</h3>
     <div class="ui-li-count">{{order.quantity}}</div>
     <p class="ui-li-desc">{{order.status}} {{order.delay}}</p>

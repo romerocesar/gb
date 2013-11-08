@@ -209,12 +209,22 @@ def list_orders(request, client_id, query={}):
 
 def filter_orders(request):
     '''Allows the user to specify filters on the list of orders they want to see.'''
-    logger.debug('')
+    logger.debug({'GET':request.GET})
     try:
         client_id = request.session['client_id']
     except KeyError as e:
         logger.error('Cannot filter orders with no client_id in the session')
         return HttpResponseBadRequest('Invalid session. Please scan QR code or login again.')
+    # process filter and render orders
+    if request.GET:
+        statii = []
+        for status in dao.ORDER_STATII:
+            if status in request.GET:
+                statii.append(status)
+        logger.debug({'filter for statii':statii})
+        if statii:
+            return list_orders(request, client_id, query={'status':statii})
+    # Render form instead if there's no filter
     statii = []
     for status in dao.ORDER_STATII:
         st = {}

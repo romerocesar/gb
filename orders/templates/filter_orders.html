@@ -5,15 +5,17 @@
     <h1>Filter Orders</h1>
   </div>
   <div data-role="content">
-    <form id="filter_orders" action="{% url 'filter_orders' %}" method="post">
+    <form id="filter_orders" action="{% url 'filter_orders' %}"
+	  method="get">
       <fieldset data-role="controlgroup" data-type="horizontal" data-theme="a">
 	<legend>Filter by status</legend>
 	{% for status in statii %}
-	<input type="checkbox" name="{{status.name}}" id="{{status.id}}" class="custom"
+	<input type="checkbox" name="{{status.id}}" id="{{status.id}}" class="custom"
                data-mini="true" data-theme="a"/>
 	<label for="{{status.id}}">{{status.name}}</label>
 	{% endfor %}
       </fieldset>
+      <button type="submit" data-theme="b">Show Orders</button>
     </form>
   </div>
   <div data-role="footer">

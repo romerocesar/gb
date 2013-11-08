@@ -40,7 +40,7 @@ def verbose_item_decorator(orders):
             item['delay'] = 'as of ' + item['delay']
     return {'item_template':'verbose_order.html'}, orders
 
-def list_settings_decorator(orders):
+def list_filter_decorator(orders):
     '''Displays a gear button on the right side of the header to allow
     the user to apply filters to the list of orders shown. Ideal for
     servers to filter by status, seat, time, etc'''
