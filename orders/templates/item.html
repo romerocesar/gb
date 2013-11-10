@@ -1,7 +1,7 @@
 <div data-role="page">
-  <div data-role="header">
+  <div data-role="header" data-theme="f">
     {% include 'menubtn.html' %}
-    <p>{{item.name}}</p>
+    <h1>{{item.name}}</h1>
     {% include 'myordersbtn.html' %}
   </div>
   <div data-role="content">	
@@ -9,7 +9,8 @@
     <label for="quantity">Order Quantity:</label>
     <form action="{% url 'order' item.id item.client_id %}" method="POST">
       {% csrf_token %}
-      <input type="range" name="quantity" id="quantity" value="1" min="1" max="8"/>
+      <input type="range" name="quantity" id="quantity" value="1"
+	     min="1" max="8" data-theme="a" data-highlight="true"/>
       <input type="submit" value="Order" data-role="button" data-theme="b"/>
     </form>
   </div><!-- /content -->

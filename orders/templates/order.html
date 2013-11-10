@@ -3,7 +3,7 @@
     <p>{{order.quantity}} orders of {{order.item_name}} 
     <span class="delay">{{order.delay}}</span></p>
   </div>
-  <div data-role="content">
+  <div data-role="content" data-theme="a">
     <form action="{% url 'update_order' order.id %}" method="post">
       {% csrf_token %}
       <fieldset data-role="controlgroup">
@@ -19,7 +19,7 @@
         <label for="{{status.value}}">{{status.name}}</label>
 	{% endfor %}
       </fieldset>
-      <input type="submit" value="Update" data-theme="e"/>
+      <input type="submit" value="Update" data-theme="c"/>
     </form>
   </div>
   <div data-role="footer"/>

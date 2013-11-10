@@ -1,0 +1,11 @@
+<li>
+  <a href="#">
+    <h3>{{order.item_name}}</h3>
+    <div class="ui-li-count">{{order.quantity}}</div>
+    <p class="ui-li-desc">{{order.status}} {{order.delay}}</p>
+  </a>
+  {% if order.cancelable %}
+  <a href="{% url 'cancel_order' order.id %}" data-icon="delete"
+  data-theme="d"></a>
+  {% endif %}
+</li>

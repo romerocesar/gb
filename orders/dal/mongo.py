@@ -52,15 +52,11 @@ class MongoOrdersDAO(OrdersDAO):
             menus[-1]['id'] = str(menus[-1]['_id'])
         return menus
     
-    def get_item(self,item_id=1):
-        '''get the specified item from the DB'''
+    def get_item(self, item_id):
+        '''Get the specified item from the DB'''
         logger.debug('item_id: %s',item_id)
-        if len(item_id) > 10:
-            #Mongo id
-            item = self.db.items.find_one({'_id':ObjectId(item_id)})
-        else:
-            #Bootstrapped id
-            item = self.db.items.find_one({'_id':item_id})
+        mongo_id = get_mongo_id(item_id)
+        item = self.db.items.find_one({'_id':mongo_id})
         item['id'] = item['_id']
         logger.info('item %s',item)
         return item

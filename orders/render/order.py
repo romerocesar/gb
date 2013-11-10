@@ -27,6 +27,20 @@ DEFAULT_TEMPLATES = {'top_template':'default_orders_header.html',
 # TODO: Here are some other modifiers we might want to implement:
 # sortable, filterable (by status, seat, time), timestamped,
 # groupable. 
+def verbose_item_decorator(orders):
+    '''This decorator displays an order including the following
+    information: item name, quantity, status, delay since order
+    creation and cancel button if the order is cancelable
+    (status==dao.ORDER_PLACED)'''
+    for item in orders:
+        if item['status'] == dao.ORDER_PLACED:
+            item['cancelable'] = True
+        item['status'] = item['status'].replace('_','').capitalize()
+        if item['status'][-1] == 'g':
+            item['delay'] = 'as of ' + item['delay']
+    return {'item_template':'verbose_order.html'}, orders
+        
+
 def cancelable_item_modifier(items):
     '''This item modifier adds a cancel button on to the item if the
     item is still in ORDER_PLACED status.'''
@@ -58,7 +72,7 @@ def render_orders(request, orders, modifiers=[]):
     refactor list_orders in views.py to use this renderer and move the
     more flexible myorders.html to replace orders.html'''
     template_params = DEFAULT_TEMPLATES
-    template_params['template'] = 'myorders.html'
+    template_params['template'] = 'orders.html'
     client_id = request.session['client_id']
     client_name = dao.get_client_name(client_id)
     template_params['client_name'] = client_name

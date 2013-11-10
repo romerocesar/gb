@@ -61,8 +61,12 @@ def back_to_menu(request):
     raise Http404
 
 def item(request, item_id):
+    '''Renders a single item on a page that allows the customer to
+    order one or more units of it.'''
+    logger.debug({'item_id':item_id})
     item = dao.get_item(item_id)
     item['id'] = item['_id']
+    logger.info('rendering item: %s', item)
     return render(request, 'index.html',
                  {'template':'item.html', 'title':item['name'], 'item':item})
 
@@ -167,8 +171,8 @@ def myorders(request):
     orders = customer_orders(request)
     return render_orders(request, orders, customer_mods)
 
-def customer_orders(request, statii = (dao.ORDER_PLACED, dao.ORDER_PREPARED,
-                                       dao.ORDER_SERVED, dao.BILL_REQUESTED)):
+def customer_orders(request, statii = (dao.ORDER_PLACED, dao.ORDER_PREPARING,
+                                       dao.ORDER_PREPARED, dao.ORDER_SERVED, dao.BILL_REQUESTED)):
     '''Helper function that returns a list of customer orders by
     extracting the seat and location id from the session in the input
     request. It defaults to orders in one of the following statii:
@@ -195,14 +199,13 @@ def list_orders(request, client_id, query={}):
     '''Lists orders in the specified client's queue. It defaults to
     the pending orders. TODO: provide a way for the server or manager
     to filter by any combination of date, status and seat'''
+    logger.debug({'client_id':client_id, 'query':query})
     # default to ORDER_PLACED for now
     if 'status' not in query:
         query['status'] = dao.ORDER_PLACED
     orders = dao.list_orders(client_id, query)
-    client_name = dao.get_client(client_id)['name']
-    return render(request, 'index.html',
-                  {'template':'orders.html', 'client_name':client_name,
-                   'orders':orders})
+    logger.info({'orders': orders,'modifiers':server_mods})
+    return render_orders(request, orders, server_mods)
 
 def order(request, order_id): 
     '''Displays order details and allows a server to update the status

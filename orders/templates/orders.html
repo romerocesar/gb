@@ -1,17 +1,17 @@
 <div data-role="page">
-  <div data-role="header">
-    {% include 'menubtn.html' %}
-    <p>Orders at {{client_name}}</p>
+  <div data-role="header" data-theme="f">
+    {% include top_template %}
   </div>
   <div data-role="content">
-    <ul data-role="listview" data-divider-theme="d">
+    <ul data-role="listview" data-theme="a" data-count-theme="a">
       {% for order in orders %}
-      <li><a href="{% url 'order_details' order.id %}">{{order.quantity}} {{order.item_name}} 
-          <span class="delay">{{order.delay}}</span>
-        </a>
-      </li>
+      {% include item_template %}
       {% endfor %}
     </ul>
   </div>
-  <div data-role="footer"/>
+  <div data-role="footer">
+    {% if bottom_template %}
+    {% include bottom_template %}
+    {% endif %}
+  </div>
 </div>

@@ -1,14 +1,14 @@
 <div data-role="page">
-  <div data-role="header">
+  <div data-role="header" data-theme="f">
     <P>Menu</p>
     {% include 'myordersbtn.html' %}
   </div>
   <div data-role="content">
-    <ul data-role="listview" data-divider-theme="d">
+    <ul data-role="listview" data-theme="a">
       {% for division, sections in menu.structure.items %}
       <li data-role="list-divider">{{division}}</li>
       {% for section in sections %}
-      <li><a href="{% url 'section' menu.id division section %}">{{section}}</a></li>
+      <li data-theme="a"><a href="{% url 'section' menu.id division section %}">{{section}}</a></li>
       {% endfor %}
       {% endfor %}
     </ul>
