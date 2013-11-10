@@ -1,6 +1,6 @@
 import logging
 
-from django.http import HttpResponse, Http404, HttpResponseForbidden
+from django.http import HttpResponse, Http404, HttpResponseForbidden, HttpResponseBadRequest
 from django.shortcuts import render, redirect
 from django.utils import simplejson
 
@@ -206,6 +206,34 @@ def list_orders(request, client_id, query={}):
     orders = dao.list_orders(client_id, query)
     logger.info({'orders': orders,'modifiers':server_mods})
     return render_orders(request, orders, server_mods)
+
+def filter_orders(request):
+    '''Allows the user to specify filters on the list of orders they want to see.'''
+    logger.debug({'GET':request.GET})
+    try:
+        client_id = request.session['client_id']
+    except KeyError as e:
+        logger.error('Cannot filter orders with no client_id in the session')
+        return HttpResponseBadRequest('Invalid session. Please scan QR code or login again.')
+    # process filter and render orders
+    if request.GET:
+        statii = []
+        for status in dao.ORDER_STATII:
+            if status in request.GET:
+                statii.append(status)
+        logger.debug({'filter for statii':statii})
+        if statii:
+            return list_orders(request, client_id, query={'status':statii})
+    # Render form instead if there's no filter
+    statii = []
+    for status in dao.ORDER_STATII:
+        st = {}
+        st['id'] = status
+        st['name'] = status.replace('_','').capitalize()
+        statii.append(st)
+    logger.info({'statii':statii})
+    return render(request, 'index.html', {'template':'filter_orders.html', 'client_id':client_id,
+                                          'statii':statii})
 
 def order(request, order_id): 
     '''Displays order details and allows a server to update the status
