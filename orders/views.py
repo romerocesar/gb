@@ -100,14 +100,13 @@ def manager_items(request, client_id):
                 #This case handles the delete item submit form
                 item_id = request.POST['delete_item_id']
                 dao.del_item(client_id, item_id)
-            elif 'save_edit' in request.POST:
+            elif 'edit_item' in request.POST:
                 #This case handles the updated items
                 item_id = request.POST['item_id']
                 name = request.POST['name']
                 price = float(request.POST['price'])
                 description = request.POST['description']
-                dao.update_item(item_id, name = name, price = price, description = description)
-                
+                dao.update_item(item_id, name = name, price = price, description = description)               
     return render(request, 'desktop_index.html',
                   {'items': items,
                    'item_form': item_form,
@@ -136,26 +135,18 @@ def manager_menus(request, client_id):
                 "Sets the selected menu as active"
                 menu_id = jstree2mongo(request.POST)['id']
                 dao.update_active_menu(client_id, menu_id)
-            elif 'create_item' in request.POST:
-                #This case handles the create items submit form
+            elif 'item_form' in request.POST:
                 item_form = ItemForm(request.POST)
                 if item_form.is_valid():
-                    #If the form is valid it enters here
                     cd = item_form.cleaned_data
                     name = cd['name']
                     price = cd['price']
                     description = cd['description']
-                    dao.add_item(client_id, name, price, description)
-            elif 'edit_item' in request.POST:
-                item_form = ItemForm(request.POST)
-                if item_form.is_valid():
-                    cd = item_form.cleaned_data
-                    item_id = request.POST['item_id']
-                    name = cd['name']
-                    price = cd['price']
-                    description = cd['description']
-                    dao.update_item(item_id, name = name, price = price, description = description)
-
+                    if 'create_item' in request.POST:
+                        dao.add_item(client_id, name, price, description)
+                    elif 'edit_item' in request.POST:
+                        item_id = request.POST['item_id']
+                        dao.update_item(item_id, name = name, price = price, description = description)
     return render(request, 'desktop_index.html',
                   {'menus': menus, 'items': items,
                    'item_form': item_form,
@@ -258,44 +249,44 @@ def mongo2jstree(menu):
     to a way jstree can read it
     P.S: This function can go to infinite depth'''
     tree = {'data': []}
-    i = 0
     tree['data'].append({'data': menu['title'], 'attr': {'id': str(menu['_id']), 'rel': 'root'}, 'state': 'open', 'children': []})
-    explo(menu, tree = tree)
+    explore_mongo(menu, tree = tree)
     return simplejson.dumps(tree)
 
 def mongo2jstree_list(menus):
-    '''handles multiple menus with the function above'''
+    '''handles multiple menus with the function above ( mongo2jstree() )'''
     js_menus = []
     for menu in menus:
         js_menus.append(mongo2jstree(menu))
     return js_menus 
 
-def explo(data, name='', level = 0, path=[], tree = {'data': []}):
+def explore_mongo(data, name='', level = 0, path=[], tree = {'data': []}):
+    '''Explores the menu in mongo with recursion'''
     if 'structure' in data:
         for child in data['structure']:
-            explo(data['structure'][child], name=child, tree = tree)
+            explore_mongo(data['structure'][child], name=child, tree = tree)
     elif type(data) is dict:
         level += 1
         ##### SECTIONS #####
         path.insert(level-1, name)
         path = path[:level]
-        eval(p2d(path, level)).insert(0, {'data': name, 'attr': {'rel': 'section'},'state': 'open','children':[]})
+        eval(path_2_list(path, level)).insert(0, {'data': name, 'attr': {'rel': 'section'},'state': 'open','children':[]})
         for child in data:
-            explo(data[child], name=child, level=level, path=path, tree=tree)
+            explore_mongo(data[child], name=child, level=level, path=path, tree=tree)
     elif type(data) is list:
         level += 1
         ##### SUBSECTIONS ######
         path.insert(level-1, name)
         path = path[:level]
-        eval(p2d(path, level)).insert(0, {'data': name, 'attr': {'rel': 'subsection'}, 'state': 'open','children':[]})
-       
+        eval(path_2_list(path, level)).insert(0, {'data': name, 'attr': {'rel': 'subsection'}, 'state': 'open','children':[]})
         level += 1
-        for child in data:
+        for child in reversed(data):
             ##### ITEMS #####
             item = dao.get_item(child)
-            eval(p2d(path, level)).insert(0, {'data': item['name'], 'attr': {'id': child, 'rel': 'item', 'name': item['name'], 'price': item['price'], 'description': item['description']}})
+            eval(path_2_list(path, level)).insert(0, {'data': item['name'], 'attr': {'id': child, 'rel': 'item', 'name': item['name'], 'price': item['price'], 'description': item['description']}})
 
-def p2d(path, level):
+def path_2_list(path, level):
+    '''Help enters the path(string) in the structure(list)''' 
     string = "tree['data'][0]['children']"
     for branch in path[:level-1]:
         string += "[0]['children']"
@@ -307,7 +298,7 @@ def jstree2mongo(tree):
     P.S: This function can go to infinite depth'''
     body = simplejson.loads(tree['tree'])
     structure = {}
-    explore(body[0], structure = structure)
+    explore_jstree(body[0], structure = structure)
     return {unicode('structure'): structure, unicode('title'): body[0]['data'], unicode('id'): body[0]['attr']['id']}
 
 def dictizeString(string, dictionary, item_id = unicode(), subsection = unicode(), section = unicode()):
@@ -330,32 +321,24 @@ def dictizeString(string, dictionary, item_id = unicode(), subsection = unicode(
         if section:
             if not dictionary.has_key(parts[0]):
                  dictionary[parts[0]] = {}
-
-                                 
-def explore(data, path = '', structure = {}):
-    '''Explores de jstree with recursion'''
+                              
+def explore_jstree(data, path = '', structure = {}):
+    '''Explores the menu in jstree with recursion'''
     if data['attr']['rel'] == 'root':
         if 'children' in data:
             for child in data['children']:
-                explore(child, structure = structure)
-            
+                explore_jstree(child, structure = structure)            
     elif data['attr']['rel'] == 'section': 
         path += '/' + data['data']
         dictizeString(path, structure, section = data['data'])
         if 'children' in data:
             for child in data['children']:
-                explore(child, path = path, structure = structure)
-                
+                explore_jstree(child, path = path, structure = structure)               
     elif data['attr']['rel'] == 'subsection':
         path += '/' + data['data']
         dictizeString(path, structure, subsection = data['data'])
         if 'children' in data:
             for child in data['children']:
-                explore(child, path = path, structure = structure)
-                
+                explore_jstree(child, path = path, structure = structure)               
     elif data['attr']['rel'] == 'item':
         dictizeString(path, structure, item_id = data['attr']['id'])
-
-
-
-

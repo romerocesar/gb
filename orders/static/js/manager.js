@@ -80,6 +80,7 @@ function customMenu(node) {
 		"Edit_Item": {
 			"label": "Edit Item",
 			"action": function(obj) { 
+				//Fills the form with the selected item data
 				$('#edit_item_form').find('#id_id').val($('.jstree-clicked').parent().attr('id'));
 				$('#edit_item_form').find('#id_name').val($('.jstree-clicked').parent().attr('name'));
 				$('#edit_item_form').find('#id_price').val($('.jstree-clicked').parent().attr('price'));
@@ -155,7 +156,7 @@ function treemaker(){
 		"themes": {
 			"theme": "apple"
 		},
-		"plugins" : [ "themes", "json_data", "ui", "dnd", "crrm", "contextmenu", "hotkeys", "unique", "types", "sort" ],
+		"plugins" : [ "themes", "json_data", "ui", "dnd", "crrm", "contextmenu", "hotkeys", "unique", "types" ],
 		"contextmenu": {"items": customMenu	},
 		});
 	};
@@ -219,7 +220,7 @@ $(document).ready(function() {
 				'name': name,
 				'price': price,
 				'description': description,
-				'save_edit': ''
+				'edit_item': ''
 			},
 			type: $(this).attr('method'),
 			url: $(this).attr('action'),
@@ -232,16 +233,15 @@ $(document).ready(function() {
 	});
 	
 	$('#edit_item_form').submit(function() {
+		var form = objetify_form($(this).serializeArray());
 		$.ajax({
-			data: $(this).serialize() + "&edit_item",
+			data: $(this).serialize() + "&edit_item" + "&item_form",
 			type: $(this).attr('method'),
 			url: $(this).attr('action'),
 			success: function(response) {
+				$('li[id="' + form.item_id + '"]').attr('name', form.name).attr('price', form.price).attr('description', form.description);
+				$('li[id="' + form.item_id + '"]').children('a').html('<ins class="jstree-icon">&nbsp;</ins>' + form.name)
 				$('#insert_item_loader').load(' #insert_item_table_container', function(){item_insert_table()});
-				$('#tabs_container').load(' #tabs', function(){
-					tabsfunc();
-					treemaker();
-				});
 				$('#edit_item_modal').modal('toggle');
 			}
 		});	
@@ -251,7 +251,7 @@ $(document).ready(function() {
 	$('#create_item_form').submit(function() {
 		var button_pressed = $("input[type=submit][clicked=true]").val();
 		$.ajax({
-			data: $(this).serialize() + "&create_item",
+			data: $(this).serialize() + "&create_item" + "&item_form",
 			type: $(this).attr('method'),
 			url: $(this).attr('action'),
 			success: function(response) {
@@ -334,6 +334,7 @@ $(document).ready(function() {
 				true
 			);
 		});
+		$('#insert_item_modal').modal('toggle');
 	});
 	
 	var parts = location.pathname.split("/");
