@@ -6,6 +6,7 @@ import datetime
 from bson.objectid import ObjectId
 from bootstrap import menus, items, clients
 from orders import OrdersDAO
+from mongoengine.django.auth import User
 
 logger = logging.getLogger('orders.mongo')
 
@@ -18,12 +19,21 @@ class MongoOrdersDAO(OrdersDAO):
         self.db = self.client.orders
         if bootstrap:
             # load bootstrap data
+            self.db.user.remove()
+            User.create_user(username='c0', email='c@0.com', password='c0')
             self.db.menus.remove()
             self.db.menus.insert(menus)
             self.db.items.remove()
             self.db.items.insert(items)
             self.db.clients.remove()
             self.db.clients.insert(clients)
+
+    def create_client(self, username):
+        self.db.clients.insert({'_id': username,
+                                'menu': '',
+                                'menus': [],
+                                'seats': ['s0'],
+                                'name': ''})
 
     def get_menu(self, menu_id):
         '''Gets the menu that matches the specified menu ID'''

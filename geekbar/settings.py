@@ -1,3 +1,15 @@
+import mongoengine
+_MONGODB_USER = 'mongouser'
+_MONGODB_PASSWD = 'password'
+_MONGODB_HOST = 'thehost'
+_MONGODB_NAME = 'orders'
+_MONGODB_DATABASE_HOST = \
+    'mongodb://%s:%s@%s/%s' \
+    % (_MONGODB_USER, _MONGODB_PASSWD, _MONGODB_HOST, _MONGODB_NAME)
+
+#mongoengine.connect(_MONGODB_NAME, host=_MONGODB_DATABASE_HOST)
+mongoengine.connect(_MONGODB_NAME)
+
 # Django settings for geekbar project.
 
 DEBUG = True
@@ -103,7 +115,12 @@ MIDDLEWARE_CLASSES = (
 )
 
 # TODO: setup Memcached or MongoDB sessions before going to production
-SESSION_ENGINE = 'django.contrib.sessions.backends.file'
+SESSION_ENGINE = 'mongoengine.django.sessions'
+SESSION_SERIALIZER = 'mongoengine.django.sessions.BSONSerializer'
+
+AUTHENTICATION_BACKENDS = (
+    'mongoengine.django.auth.MongoEngineBackend',
+)
 
 ROOT_URLCONF = 'geekbar.urls'
 
@@ -118,6 +135,7 @@ TEMPLATE_DIRS = (
 
 INSTALLED_APPS = (
     'django.contrib.auth',
+    'mongoengine.django.mongo_auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.sites',
@@ -129,6 +147,10 @@ INSTALLED_APPS = (
     # 'django.contrib.admindocs',
     'orders',
 )
+
+AUTH_USER_MODEL = 'mongo_auth.MongoUser'
+
+MONGOENGINE_USER_DOCUMENT = 'mongoengine.django.auth.User'
 
 # A sample logging configuration. It sends an email to the site admins
 # on every HTTP 500 error when DEBUG=False.  It also logs all INFO
