@@ -1,0 +1,18 @@
+<div class="form-sign">
+	<form action="/orders/signup/" method="post">
+		<h3 class="form-sign-heading">Sign Up</h2>
+		{% csrf_token %}
+		<input type="text" class="form-control" autocomplete="off" name="user[name]" maxlength="20" placeholder="Username" required value={{ username }} >
+		{% if error.username %}
+			<p class="text-danger">{{ error_value }}</p>
+		{% endif %}
+		<input type="email" class="form-control" autocomplete="off" name="user[email]" placeholder="Email" required value={{ email }} >
+		{% if error.email %}
+			<p class="text-danger">{{ error_value }}</p>
+		{% endif %}
+		<input type="password" class="form-control" name="user[user_password]" placeholder="Password" required>
+		<button class="btn btn-lg btn-primary btn-block" type="submit">
+			Sign up
+		</button>
+	</form>
+</div>

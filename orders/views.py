@@ -1,6 +1,10 @@
 import logging
 
-from django.http import HttpResponse, Http404, HttpResponseForbidden, HttpResponseBadRequest
+from mongoengine import NotUniqueError, ValidationError
+from orders.models import User
+from django.contrib.auth import login, logout, authenticate
+
+from django.http import HttpResponse, Http404, HttpResponseForbidden, HttpResponseBadRequest, HttpResponseRedirect
 from django.shortcuts import render, redirect
 from django.utils import simplejson
 
@@ -13,6 +17,96 @@ logger = logging.getLogger('orders.views')
 # TODO: perhaps we should have a centralized call to render so it
 # includes the parent template as well as commons variables such as
 # client_name.
+
+def home(request):
+    '''Home view with a signin and singup form'''
+    if request.user.is_authenticated():
+        '''If the user is already registered it goes
+        to the manager view'''
+        return HttpResponseRedirect('/orders/manager/items')
+    return render(request, 'home_index.html',
+                  {'title': 'Welcome',
+                   'template': 'home.html'})
+
+def signin(request):
+    '''Sign In view'''
+    if request.user.is_authenticated():
+        '''If the user is already registered it goes
+        to the manager screen'''
+        return HttpResponseRedirect('/orders/manager/items')
+    if request.method == 'POST':
+        username = request.POST['session[username]']
+        password = request.POST['session[password]']
+        try:
+            '''Tries to log in, if succeds it redirects to the
+            manager view'''
+            user = authenticate(username=username, password=password)
+            login(request, user)
+            return HttpResponseRedirect('/orders/manager/items')
+        except AttributeError:
+            '''If it cant log in it gives a error message'''
+            error = True
+            error_value = 'Wrong username or password'
+    else:
+        error = False
+        error_value = ''
+        username = ''
+    return render(request, 'home_index.html',
+                  {'title': 'Sign In',
+                   'template': 'signin.html',
+                   'username': username,
+                   'error': error,
+                   'error_value': error_value})
+
+def signup(request):
+    if request.user.is_authenticated():
+        '''If the user is already registered it goes
+        to the manager screen'''
+        return HttpResponseRedirect('/orders/manager/items')
+    if request.method == 'POST':
+        username = request.POST['user[name]']
+        email = request.POST['user[email]']
+        password = request.POST['user[user_password]']
+        try:
+            '''Tries to create a new client, if succeeds it logs in
+            and redirects to the manager view'''
+            User.create_user(username=username, email=email, password=password)
+            dao.create_client(username)
+            user = authenticate(username=username, password=password)
+            login(request, user)
+            return HttpResponseRedirect('/orders/manager/items')
+        except NotUniqueError, Argument:
+            if 'username' in str(Argument):
+                '''If the username is already registered it gives a
+                error message'''
+                error = {'username': True, 'email': False}
+                error_value = 'Username already registered'
+            elif 'email' in str(Argument):
+                '''If the email is already registered it gives a
+                error message'''
+                error = {'username': False, 'email': True}
+                error_value = 'Email already registered'
+        except ValidationError:
+            '''If the email submited doesnt have a valid form
+            it gives a error message'''
+                error = {'username': False, 'email': True}
+                error_value = 'Not a valid email'
+    else:
+        error = {'username': False, 'email': False}
+        error_value = username = email = ''
+    return render(request, 'home_index.html',
+                  {'title': 'Sign Up',
+                   'template': 'signup.html',
+                   'username': username,
+                   'email': email,
+                   'error': error,
+                   'error_value': error_value})
+
+def signout(request):
+    '''Sign out view, it logs out and redirects to
+    the home view'''
+    logout(request)
+    return HttpResponseRedirect('/orders/')
 
 def init_session(request, client_id, seat_id):
     '''Initializes the session with the client_id and seat_id of the
@@ -84,10 +178,13 @@ def menu_path(request, menu_id, path):
     '''This view receives a path that is not tokenized.'''
     pass
 
-def manager_items(request, client_id):
+def manager_items(request):    
     #TODO: some refactoring,
     #      make the form validations work with the javascript part
-    menu = dao.get_active_menu(client_id)
+    if not request.user.is_authenticated():
+        '''If the user is not logged in is redirected to the home view'''
+        return HttpResponseRedirect('/orders/')
+    client_id = request.user.username
     items = dao.get_client_items(client_id)
     item_form = ItemForm()
     if request.method == 'POST':
@@ -120,12 +217,19 @@ def manager_items(request, client_id):
                    'template': 'manager_items.html',
                    'title': 'Manager'})
 
-def manager_menus(request, client_id):
+def manager_menus(request):
     #TODO: some refactoring,
     #      make the form validations work with the javascript part,
     #      make a clean decoupled design and python view code that is independent of
     #      the DB or JS code.
-    menus = dao.get_client_menus(client_id)
+    if not request.user.is_authenticated():
+        '''If the user is not logged in is redirected to the home view'''
+        return HttpResponseRedirect('/orders/')
+    client_id = request.user.username
+    try:
+        menus = dao.get_client_menus(client_id)
+    except TypeError:
+        menus = []
     items = dao.get_client_items(client_id)
     if request.method == 'POST':
         if request.is_ajax():
